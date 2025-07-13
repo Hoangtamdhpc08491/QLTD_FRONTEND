@@ -1,0 +1,50 @@
+<form class="about-one__form wow fadeInUp" data-wow-duration="1500ms" (ngSubmit)="calculateLoan()">
+  <h3>Ước tính khoản vay</h3>
+  <div class="about-one__form-content">
+    <!-- Loan Amount Slider -->
+    <div class="input-box__top">
+      <span>1,000,000VNĐ</span>
+      <span>100,000,000VNĐ</span>
+    </div>
+    <div class="input-box">
+      <input 
+        type="range" 
+        [(ngModel)]="loanAmount" 
+        [min]="minLoanAmount" 
+        [max]="maxLoanAmount" 
+        class="range-slider"
+        name="loanAmount">
+      <div class="range-value">Số tiền vay: {{formatCurrency(loanAmount)}}</div>
+    </div>
+    
+    <!-- Loan Duration Slider -->
+    <div class="input-box__top">
+      <span>1 Tháng</span>
+      <span>12 Tháng</span>
+    </div>
+    <div class="input-box">
+      <input 
+        type="range" 
+        [(ngModel)]="loanDuration" 
+        [min]="minDuration" 
+        [max]="maxDuration" 
+        class="range-slider"
+        name="loanDuration">
+      <div class="range-value">Thời hạn: {{loanDuration}} tháng</div>
+    </div>
+    
+    <!-- Results -->
+    <div class="loan-calculator__result">
+      <div class="result-item">
+        <span>Tiền lãi hàng tháng:</span>
+        <span class="result-value">{{formatCurrency(monthlyInterest)}}</span>
+      </div>
+      <div class="result-item">
+        <span>Tổng tiền phải trả:</span>
+        <span class="result-value">{{formatCurrency(totalAmount)}}</span>
+      </div>
+    </div>
+    
+    <button type="submit" class="thm-btn">Đăng ký vay ngay</button>
+  </div>
+</form>

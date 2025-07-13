@@ -1,0 +1,53 @@
+<header class="header">
+  <nav class="navbar navbar-expand-lg">
+    <div class="container">
+      <!-- Logo -->
+      <a class="navbar-brand" [routerLink]="'/'">
+        <img src="/assets/images/logo.png" alt="PYLOAN" class="logo-img">
+        <span class="logo-text">PYLOAN</span>
+      </a>
+
+      <!-- Mobile menu toggle -->
+      <button class="navbar-toggler" type="button" (click)="toggleMobileMenu()">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <!-- Navigation menu -->
+      <div class="navbar-collapse" [class.show]="isMobileMenuOpen">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item">
+            <a class="nav-link" [routerLink]="'/'" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Trang chủ</a>
+          </li>
+          <li class="nav-item dropdown" (mouseenter)="showDropdown = true" (mouseleave)="showDropdown = false">
+            <a class="nav-link dropdown-toggle" href="#" [class.show]="showDropdown">
+              Các gói vay
+            </a>
+            <div class="dropdown-menu" [class.show]="showDropdown">
+              <a class="dropdown-item" [routerLink]="'/khoản-vay-kinh-doanh'">Khoản vay kinh doanh</a>
+              <a class="dropdown-item" [routerLink]="'/khoản-vay-cá-nhân'">Khoản vay cá nhân</a>
+              <a class="dropdown-item" [routerLink]="'/khoản-vay-thế-chấp'">Khoản vay thế chấp</a>
+            </div>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" [routerLink]="'/về-chúng-tôi'">Về chúng tôi</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" [routerLink]="'/tin-tức'">Tin tức</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" [routerLink]="'/liên-hệ'">Liên hệ</a>
+          </li>
+        </ul>
+
+        <!-- Contact info -->
+        <div class="header-contact">
+          <div class="contact-item">
+            <i class="icon-phone"></i>
+            <span>+84 123 456 789</span>
+          </div>
+          <a [routerLink]="'/đăng-ký-vay'" class="btn btn-primary">Đăng ký vay ngay</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>

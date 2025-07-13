@@ -1,0 +1,47 @@
+<section class="loan-packages">
+  <div class="container">
+    <div class="section-header text-center">
+      <p class="section-subtitle">Các gói vay</p>
+      <h2 class="section-title">Khoản vay kinh doanh linh hoạt và nhanh chóng dành cho bạn</h2>
+    </div>
+    
+    <div class="loan-packages-grid">
+      <div class="loan-package-card" *ngFor="let package of loanPackages">
+        <div class="package-icon">
+          <i [class]="package.icon"></i>
+        </div>
+        <h3 class="package-title">{{package.title}}</h3>
+        <p class="package-description">{{package.description}}</p>
+        
+        <div class="package-features">
+          <div class="feature-item" *ngFor="let feature of package.features">
+            <div class="feature-icon">
+              <i [class]="feature.icon"></i>
+            </div>
+            <div class="feature-content">
+              <h4>{{feature.title}}</h4>
+              <p>{{feature.description}}</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="package-details">
+          <div class="detail-item">
+            <span class="detail-label">Lãi suất từ:</span>
+            <span class="detail-value">{{package.interestRate}}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Hạn mức:</span>
+            <span class="detail-value">{{package.maxAmount}}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Thời hạn:</span>
+            <span class="detail-value">{{package.duration}}</span>
+          </div>
+        </div>
+        
+        <a [routerLink]="package.link" class="package-btn">{{package.buttonText}}</a>
+      </div>
+    </div>
+  </div>
+</section>

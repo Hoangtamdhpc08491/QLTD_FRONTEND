@@ -1,0 +1,214 @@
+.loan-packages {
+  padding: 80px 0;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+.section-header {
+  margin-bottom: 60px;
+}
+
+.section-subtitle {
+  color: #1e3a8a;
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.section-title {
+  color: #111827;
+  font-size: 42px;
+  font-weight: 700;
+  line-height: 1.2;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.loan-packages-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 30px;
+  margin-top: 60px;
+}
+
+.loan-package-card {
+  background: white;
+  border-radius: 20px;
+  padding: 40px 30px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.loan-package-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+}
+
+.loan-package-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.package-icon {
+  width: 70px;
+  height: 70px;
+  background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 25px;
+}
+
+.package-icon i {
+  font-size: 30px;
+  color: white;
+}
+
+/* Icon styles */
+.business-icon::before { content: "💼"; }
+.personal-icon::before { content: "👤"; }
+.mortgage-icon::before { content: "🏠"; }
+
+.package-title {
+  color: #111827;
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 15px;
+}
+
+.package-description {
+  color: #6b7280;
+  font-size: 16px;
+  line-height: 1.6;
+  margin-bottom: 30px;
+}
+
+.package-features {
+  margin-bottom: 30px;
+}
+
+.feature-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.feature-item:last-child {
+  margin-bottom: 0;
+}
+
+.feature-icon {
+  width: 40px;
+  height: 40px;
+  background: #f0f7ff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.feature-icon i {
+  font-size: 16px;
+  color: #1e3a8a;
+}
+
+/* Feature icon styles */
+.speed-icon::before { content: "⚡"; }
+.money-icon::before { content: "💰"; }
+.online-icon::before { content: "💻"; }
+.fast-icon::before { content: "🚀"; }
+.low-rate-icon::before { content: "📉"; }
+.high-amount-icon::before { content: "💎"; }
+
+.feature-content h4 {
+  color: #111827;
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.feature-content p {
+  color: #6b7280;
+  font-size: 14px;
+  margin: 0;
+}
+
+.package-details {
+  background: #f8fafc;
+  border-radius: 15px;
+  padding: 25px;
+  margin-bottom: 30px;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.detail-item:last-child {
+  margin-bottom: 0;
+}
+
+.detail-label {
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.detail-value {
+  color: #059669;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.package-btn {
+  background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+  color: white;
+  padding: 15px 30px;
+  border: none;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: 600;
+  text-decoration: none;
+  display: block;
+  text-align: center;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.package-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(30, 58, 138, 0.3);
+}
+
+@media (max-width: 768px) {
+  .loan-packages {
+    padding: 60px 0;
+  }
+  
+  .section-title {
+    font-size: 32px;
+  }
+  
+  .loan-packages-grid {
+    grid-template-columns: 1fr;
+    gap: 25px;
+  }
+  
+  .loan-package-card {
+    padding: 30px 20px;
+  }
+}

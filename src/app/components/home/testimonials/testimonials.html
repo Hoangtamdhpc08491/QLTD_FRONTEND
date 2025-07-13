@@ -1,0 +1,26 @@
+<section class="testimonials">
+  <div class="container">
+    <div class="section-header text-center">
+      <p class="section-subtitle">Trải nghiệm của khách hàng</p>
+      <h2 class="section-title">Hàu hết mọi người tin tưởng dịch vụ nhanh chóng của chúng tôi</h2>
+    </div>
+    
+    <div class="testimonials-grid">
+      <div class="testimonial-card" *ngFor="let testimonial of testimonials">
+        <div class="testimonial-rating">
+          <span class="star" *ngFor="let star of getStars(testimonial.rating)">⭐</span>
+        </div>
+        <p class="testimonial-text">"{{testimonial.text}}"</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">
+            <img [src]="testimonial.avatar" [alt]="testimonial.name">
+          </div>
+          <div class="author-info">
+            <h4 class="author-name">{{testimonial.name}}</h4>
+            <p class="author-title">{{testimonial.title}}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
