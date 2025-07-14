@@ -1,0 +1,205 @@
+<<!-- Header -->
+<app-header></app-header>
+
+<div class="news-detail-page" *ngIf="news">
+  <!-- Page Header -->
+  <section class="page-header">
+    <div class="page-header-bg"></div>
+    <div class="container">
+      <nav class="breadcrumb">
+        <a [routerLink]="'/'" class="breadcrumb-item">Trang chủ</a>
+        <span class="breadcrumb-separator">/</span>
+        <a [routerLink]="'/tin-tuc'" class="breadcrumb-item">Tin tức</a>
+        <span class="breadcrumb-separator">/</span>
+        <span class="breadcrumb-item active">{{getCategoryName(news.danhMuc)}}</span>
+      </nav>
+      
+      <div class="article-header">
+        <div class="article-category">{{getCategoryName(news.danhMuc)}}</div>
+        <h1 class="article-title">{{news.tieuDe}}</h1>
+        <div class="article-meta">
+          <div class="meta-info">
+            <span class="meta-author">
+              <i class="icon-user">👤</i>
+              {{news.tacGia}}
+            </span>
+            <span class="meta-date">
+              <i class="icon-calendar">📅</i>
+              {{formatDate(news.ngayDang)}}
+            </span>
+            <span class="meta-views">
+              <i class="icon-eye">👁️</i>
+              {{formatViewCount(news.luotXem)}} lượt xem
+            </span>
+          </div>
+          <div class="article-actions">
+            <button class="action-btn" (click)="shareNews()" title="Chia sẻ">
+              <i class="icon-share">🔗</i>
+            </button>
+            <button class="action-btn" (click)="printNews()" title="In bài viết">
+              <i class="icon-print">🖨️</i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <section class="article-content">
+    <div class="container">
+      <div class="content-grid">
+        <!-- Article Main -->
+        <main class="article-main">
+          <article class="article">
+            <!-- Featured Image -->
+            <div class="article-image">
+              <img [src]="news.anhDaiDien" [alt]="news.tieuDe" loading="lazy">
+            </div>
+
+            <!-- Article Summary -->
+            <div class="article-summary">
+              <p>{{news.tomTat}}</p>
+            </div>
+
+            <!-- Article Body -->
+            <div class="article-body">
+              <div [innerHTML]="news.noiDung" class="content-html"></div>
+            </div>
+
+            <!-- Article Tags -->
+            <div class="article-tags">
+              <h4>Từ khóa:</h4>
+              <div class="tags-list">
+                <span class="tag" *ngFor="let tag of news.tags">#{{tag}}</span>
+              </div>
+            </div>
+
+            <!-- Social Share -->
+            <div class="social-share">
+              <h4>Chia sẻ bài viết:</h4>
+              <div class="share-buttons">
+                <a href="#" class="share-btn facebook" title="Chia sẻ lên Facebook">
+                  <i class="fab fa-facebook-f"></i>
+                  Facebook
+                </a>
+                <a href="#" class="share-btn twitter" title="Chia sẻ lên Twitter">
+                  <i class="fab fa-twitter"></i>
+                  Twitter
+                </a>
+                <a href="#" class="share-btn linkedin" title="Chia sẻ lên LinkedIn">
+                  <i class="fab fa-linkedin-in"></i>
+                  LinkedIn
+                </a>
+                <a href="#" class="share-btn copy" title="Copy link" (click)="shareNews()">
+                  <i class="fas fa-link"></i>
+                  Copy Link
+                </a>
+              </div>
+            </div>
+          </article>
+
+          <!-- Related News -->
+          <section class="related-news" *ngIf="relatedNews.length > 0">
+            <h3 class="section-title">Bài viết liên quan</h3>
+            <div class="related-grid">
+              <div class="related-card" *ngFor="let relatedNews of relatedNews">
+                <div class="related-image">
+                  <a [routerLink]="['/tin-tuc', relatedNews.id]">
+                    <img [src]="relatedNews.anhDaiDien" [alt]="relatedNews.tieuDe" loading="lazy">
+                  </a>
+                </div>
+                <div class="related-content">
+                  <div class="related-meta">
+                    <span class="meta-category">{{getCategoryName(relatedNews.danhMuc)}}</span>
+                    <span class="meta-date">{{formatDate(relatedNews.ngayDang)}}</span>
+                  </div>
+                  <h4 class="related-title">
+                    <a [routerLink]="['/tin-tuc', relatedNews.id]">{{relatedNews.tieuDe}}</a>
+                  </h4>
+                  <p class="related-excerpt">{{relatedNews.tomTat}}</p>
+                </div>
+              </div>
+            </div>
+          </section>
+        </main>
+
+        <!-- Sidebar -->
+        <aside class="article-sidebar">
+          <!-- Quick Navigation -->
+          <div class="sidebar-card">
+            <h3 class="sidebar-title">Điều hướng nhanh</h3>
+            <nav class="quick-nav">
+              <a [routerLink]="'/tin-tuc'" class="nav-item">
+                <i class="icon-news">📰</i>
+                Tất cả tin tức
+              </a>
+              <a [routerLink]="'/goi-vay'" class="nav-item">
+                <i class="icon-loan">💰</i>
+                Các gói vay
+              </a>
+              <a [routerLink]="'/dang-ky-vay'" class="nav-item">
+                <i class="icon-apply">📝</i>
+                Đăng ký vay
+              </a>
+              <a [routerLink]="'/lien-he'" class="nav-item">
+                <i class="icon-contact">📞</i>
+                Liên hệ tư vấn
+              </a>
+            </nav>
+          </div>
+
+          <!-- Popular News -->
+          <div class="sidebar-card">
+            <h3 class="sidebar-title">Tin phổ biến</h3>
+            <div class="popular-list">
+              <div class="popular-item" 
+                   *ngFor="let popularNews of newsList.slice(0, 5); let i = index">
+                <div class="popular-number">{{i + 1}}</div>
+                <div class="popular-content">
+                  <h4>
+                    <a [routerLink]="['/tin-tuc', popularNews.id]">{{popularNews.tieuDe}}</a>
+                  </h4>
+                  <div class="popular-meta">
+                    <span class="meta-views">{{formatViewCount(popularNews.luotXem)}} lượt xem</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Contact Support -->
+          <div class="sidebar-card support-card">
+            <h3 class="sidebar-title">Cần hỗ trợ?</h3>
+            <p>Đội ngũ chuyên viên tư vấn của chúng tôi sẵn sàng hỗ trợ bạn 24/7</p>
+            <div class="support-actions">
+              <a href="tel:+84123456789" class="support-btn primary">
+                <i class="icon-phone">📞</i>
+                Gọi ngay
+              </a>
+              <a [routerLink]="'/lien-he'" class="support-btn secondary">
+                <i class="icon-message">💬</i>
+                Chat tư vấn
+              </a>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- Not Found Message -->
+<div class="not-found" *ngIf="!news">
+  <div class="container">
+    <div class="not-found-content">
+      <div class="not-found-icon">📰</div>
+      <h2>Không tìm thấy bài viết</h2>
+      <p>Bài viết bạn đang tìm kiếm không tồn tại hoặc đã bị xóa.</p>
+      <a [routerLink]="'/tin-tuc'" class="btn btn-primary">Quay lại tin tức</a>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<app-footer></app-footer>

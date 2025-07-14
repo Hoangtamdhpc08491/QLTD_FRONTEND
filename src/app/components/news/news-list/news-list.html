@@ -1,0 +1,133 @@
+<<!-- Header -->
+<app-header></app-header>
+
+<div class="news-page">
+  <!-- Page Header -->
+  <section class="page-header">
+    <div class="page-header-bg"></div>
+    <div class="container">
+      <nav class="breadcrumb">
+        <a [routerLink]="'/'" class="breadcrumb-item">Trang chủ</a>
+        <span class="breadcrumb-separator">/</span>
+        <span class="breadcrumb-item active">Tin tức</span>
+      </nav>
+      <h1 class="page-title">Tin Tức Tài Chính</h1>
+      <p class="page-subtitle">Cập nhật những thông tin mới nhất về tài chính, vay vốn và đầu tư</p>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <section class="news-content">
+    <div class="container">
+      <div class="content-grid">
+        <!-- Categories Sidebar -->
+        <aside class="categories-sidebar">
+          <div class="categories-card">
+            <h3 class="categories-title">Danh mục</h3>
+            <ul class="categories-list">
+              <li *ngFor="let category of categories">
+                <button 
+                  class="category-item"
+                  [class.active]="selectedCategory === category.id"
+                  (click)="selectCategory(category.id)">
+                  {{category.ten}}
+                  <span class="category-count" *ngIf="category.id !== 'all'">
+                    ({{getCategoryCount(category.id)}})
+                  </span>
+                  <span class="category-count" *ngIf="category.id === 'all'">
+                    ({{newsList.length}})
+                  </span>
+                </button>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Featured News -->
+          <div class="featured-card">
+            <h3 class="featured-title">Tin nổi bật</h3>
+            <div class="featured-list">
+              <div class="featured-item" 
+                   *ngFor="let news of newsList.slice(0, 3)">
+                <div class="featured-image">
+                  <img [src]="news.anhDaiDien" [alt]="news.tieuDe" loading="lazy">
+                </div>
+                <div class="featured-content">
+                  <h4>
+                    <a [routerLink]="['/tin-tuc', news.id]">{{news.tieuDe}}</a>
+                  </h4>
+                  <div class="featured-meta">
+                    <span class="meta-date">{{formatShortDate(news.ngayDang)}}</span>
+                    <span class="meta-views">{{formatViewCount(news.luotXem)}} lượt xem</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <!-- News List -->
+        <main class="news-main">
+          <div class="news-header">
+            <h2 class="section-title">
+              {{selectedCategory === 'all' ? 'Tất cả tin tức' : getCategoryName(selectedCategory)}}
+            </h2>
+            <p class="news-count">{{filteredNews.length}} bài viết</p>
+          </div>
+
+          <div class="news-grid">
+            <article class="news-card" *ngFor="let news of filteredNews">
+              <div class="news-image">
+                <a [routerLink]="['/tin-tuc', news.id]">
+                  <img [src]="news.anhDaiDien" [alt]="news.tieuDe" loading="lazy">
+                </a>
+                <div class="news-category">{{getCategoryName(news.danhMuc)}}</div>
+              </div>
+
+              <div class="news-content">
+                <div class="news-meta">
+                  <span class="meta-author">{{news.tacGia}}</span>
+                  <span class="meta-date">{{formatDate(news.ngayDang)}}</span>
+                  <span class="meta-views">{{formatViewCount(news.luotXem)}} lượt xem</span>
+                </div>
+
+                <h3 class="news-title">
+                  <a [routerLink]="['/tin-tuc', news.id]">{{news.tieuDe}}</a>
+                </h3>
+
+                <p class="news-excerpt">{{news.tomTat}}</p>
+
+                <div class="news-tags">
+                  <span class="tag" *ngFor="let tag of news.tags">#{{tag}}</span>
+                </div>
+
+                <div class="news-actions">
+                  <a [routerLink]="['/tin-tuc', news.id]" class="read-more-btn">
+                    Đọc tiếp
+                    <span class="btn-icon">→</span>
+                  </a>
+                </div>
+              </div>
+            </article>
+          </div>
+
+          <!-- Empty State -->
+          <div class="empty-state" *ngIf="filteredNews.length === 0">
+            <div class="empty-icon">📰</div>
+            <h3>Không có tin tức nào</h3>
+            <p>Hiện tại chưa có tin tức nào trong danh mục này.</p>
+          </div>
+
+          <!-- Load More Button -->
+          <div class="load-more" *ngIf="filteredNews.length > 0">
+            <button class="btn btn-outline btn-large">
+              Xem thêm tin tức
+            </button>
+          </div>
+        </main>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- Footer -->
+<app-footer></app-footer>

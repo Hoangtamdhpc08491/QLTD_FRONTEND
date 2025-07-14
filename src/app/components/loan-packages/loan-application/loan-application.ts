@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { FormsModule, NgForm } from '@angular/forms';
+import { Footer } from '../../shared/footer/footer';
+import { Header } from '../../shared/header/header';
 
 interface LoanApplicationData {
   hoTen: string;
@@ -32,7 +34,7 @@ interface LoanPackage {
 
 @Component({
   selector: 'app-loan-application',
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, Footer, Header],
   templateUrl: './loan-application.html',
   styleUrl: './loan-application.css'
 })

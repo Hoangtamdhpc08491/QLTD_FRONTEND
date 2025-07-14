@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { Footer } from '../../shared/footer/footer';
+import { Header } from '../../shared/header/header';
 
 interface LoanPackage {
   maGoiVay: string;
@@ -19,7 +21,7 @@ interface LoanPackage {
 
 @Component({
   selector: 'app-loan-packages-list',
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, Footer, Header],
   templateUrl: './loan-packages-list.html',
   styleUrl: './loan-packages-list.css'
 })
