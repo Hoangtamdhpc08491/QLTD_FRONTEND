@@ -1,1 +1,107 @@
-<p>footer works!</p>
+<footer class="footer">
+  <div class="footer-main">
+    <div class="container">
+      <div class="footer-content">
+        <!-- Company Info -->
+        <div class="footer-section">
+          <div class="footer-logo">
+            <h3>PYLOAN</h3>
+            <p class="footer-tagline">Giải pháp tài chính hoàn hảo</p>
+          </div>
+          <p class="company-description">
+            Chúng tôi cung cấp các giải pháp tài chính linh hoạt và nhanh chóng, 
+            giúp bạn hiện thực hóa ước mơ và phát triển kinh doanh.
+          </p>
+          <div class="social-links">
+            <a href="#" class="social-link facebook" aria-label="Facebook">
+              <i class="fab fa-facebook-f"></i>
+            </a>
+            <a href="#" class="social-link twitter" aria-label="Twitter">
+              <i class="fab fa-twitter"></i>
+            </a>
+            <a href="#" class="social-link linkedin" aria-label="LinkedIn">
+              <i class="fab fa-linkedin-in"></i>
+            </a>
+            <a href="#" class="social-link youtube" aria-label="YouTube">
+              <i class="fab fa-youtube"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="footer-section">
+          <h4 class="footer-title">Liên kết nhanh</h4>
+          <ul class="footer-links">
+            <li><a [routerLink]="'/'" class="footer-link">Trang chủ</a></li>
+            <li><a [routerLink]="'/về-chúng-tôi'" class="footer-link">Về chúng tôi</a></li>
+            <li><a [routerLink]="'/tin-tức'" class="footer-link">Tin tức</a></li>
+            <li><a [routerLink]="'/liên-hệ'" class="footer-link">Liên hệ</a></li>
+            <li><a [routerLink]="'/chính-sách-bảo-mật'" class="footer-link">Chính sách bảo mật</a></li>
+          </ul>
+        </div>
+
+        <!-- Loan Services -->
+        <div class="footer-section">
+          <h4 class="footer-title">Các gói vay</h4>
+          <ul class="footer-links">
+            <li><a [routerLink]="'/khoản-vay-kinh-doanh'" class="footer-link">Khoản vay kinh doanh</a></li>
+            <li><a [routerLink]="'/khoản-vay-cá-nhân'" class="footer-link">Khoản vay cá nhân</a></li>
+            <li><a [routerLink]="'/khoản-vay-thế-chấp'" class="footer-link">Khoản vay thế chấp</a></li>
+            <li><a [routerLink]="'/vay-mua-xe'" class="footer-link">Vay mua xe</a></li>
+            <li><a [routerLink]="'/vay-mua-nhà'" class="footer-link">Vay mua nhà</a></li>
+          </ul>
+        </div>
+
+        <!-- Contact Info -->
+        <div class="footer-section">
+          <h4 class="footer-title">Thông tin liên hệ</h4>
+          <div class="contact-info">
+            <div class="contact-item">
+              <i class="contact-icon fas fa-map-marker-alt"></i>
+              <div class="contact-details">
+                <p>{{contactInfo.address}}</p>
+              </div>
+            </div>
+            <div class="contact-item">
+              <i class="contact-icon fas fa-phone"></i>
+              <div class="contact-details">
+                <p>{{contactInfo.phone}}</p>
+                <small>Hotline 24/7</small>
+              </div>
+            </div>
+            <div class="contact-item">
+              <i class="contact-icon fas fa-envelope"></i>
+              <div class="contact-details">
+                <p>{{contactInfo.email}}</p>
+                <small>Hỗ trợ khách hàng</small>
+              </div>
+            </div>
+            <div class="contact-item">
+              <i class="contact-icon fas fa-clock"></i>
+              <div class="contact-details">
+                <p>{{contactInfo.workingHours}}</p>
+                <small>Thời gian làm việc</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Bottom -->
+  <div class="footer-bottom">
+    <div class="container">
+      <div class="footer-bottom-content">
+        <div class="copyright">
+          <p>&copy; {{currentYear}} PYLOAN. Tất cả quyền được bảo lưu.</p>
+        </div>
+        <div class="footer-bottom-links">
+          <a href="#" class="footer-bottom-link">Điều khoản sử dụng</a>
+          <a href="#" class="footer-bottom-link">Chính sách bảo mật</a>
+          <a href="#" class="footer-bottom-link">Sitemap</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>

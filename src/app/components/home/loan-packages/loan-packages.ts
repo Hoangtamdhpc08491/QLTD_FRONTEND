@@ -28,69 +28,69 @@ interface LoanPackage {
 export class LoanPackages {
   loanPackages: LoanPackage[] = [
     {
-      id: 'business',
-      title: 'Lãi xuất cực thấp',
+      id: 'VKD001',
+      title: 'Lãi suất cực thấp',
       description: 'Lãi suất thấp nhất thị trường, duyệt nhanh 15 phút',
-      icon: 'business-icon',
+      icon: '🏢',
       interestRate: '1.2%/tháng',
       maxAmount: '500 triệu VND',
-      duration: '1-12 tháng',
-      buttonText: 'Xem chi tiết',
-      link: '/khoản-vay-kinh-doanh',
+      duration: '6-36 tháng',
+      buttonText: 'Đăng ký ngay',
+      link: '/goi-vay/chi-tiet/VKD001',
       features: [
         {
-          icon: 'speed-icon',
+          icon: '⚡',
           title: 'Duyệt nhanh',
           description: 'Chỉ 15 phút duyệt hồ sơ'
         },
         {
-          icon: 'money-icon',
+          icon: '💰',
           title: 'Hạn mức cao',
           description: 'Lên đến 500 triệu VND'
         }
       ]
     },
     {
-      id: 'personal',
+      id: 'VCN002',
       title: 'Vay nhanh trực tuyến',
       description: 'Giải ngân trong ngày, thủ tục đơn giản online',
-      icon: 'personal-icon',
+      icon: '👤',
       interestRate: '1.5%/tháng',
       maxAmount: '200 triệu VND',
-      duration: '1-8 tháng',
-      buttonText: 'Vay ngay',
-      link: '/khoản-vay-cá-nhân',
+      duration: '3-24 tháng',
+      buttonText: 'Đăng ký ngay',
+      link: '/goi-vay/chi-tiet/VCN002',
       features: [
         {
-          icon: 'online-icon',
+          icon: '💻',
           title: 'Hoàn toàn online',
           description: 'Không cần đến văn phòng'
         },
         {
-          icon: 'fast-icon',
+          icon: '🚀',
           title: 'Giải ngân nhanh',
           description: 'Nhận tiền trong ngày'
         }
       ]
     },
     {
-      id: 'mortgage',
+      id: 'VTC003',
       title: 'Vay thế chấp tài sản',
       description: 'Lãi suất ưu đãi với tài sản thế chấp',
-      icon: 'mortgage-icon',
+      icon: '🏠',
       interestRate: '0.9%/tháng',
       maxAmount: '2 tỷ VND',
-      duration: '6-36 tháng',
-      buttonText: 'Tìm hiểu thêm',
-      link: '/khoản-vay-thế-chấp',
+      duration: '12-120 tháng',
+      buttonText: 'Đăng ký ngay',
+      link: '/goi-vay/chi-tiet/VTC003',
       features: [
         {
-          icon: 'low-rate-icon',
+          icon: '📉',
           title: 'Lãi suất thấp',
           description: 'Chỉ từ 0.9%/tháng'
         },
         {
-          icon: 'high-amount-icon',
+          icon: '💎',
           title: 'Hạn mức lớn',
           description: 'Lên đến 2 tỷ VND'
         }

@@ -19,19 +19,13 @@ interface SlideData {
 export class HeroSlider implements AfterViewInit {
   slides: SlideData[] = [
     {
-      backgroundImage: 'linear-gradient(135deg, #1e3a8a, #3b82f6)',
+      backgroundImage: 'url(assets/images/main-slider/personal-Loan.jpg)',
       subtitle: 'Simple & Secure Payment Process',
       title: 'Giải Pháp Tài Chính Hoàn Hảo',
       buttonText: 'Đăng kí vay ngay',
-      buttonLink: '/hop-dong-vay'
-    },
-    {
-      backgroundImage: 'linear-gradient(135deg, #059669, #10b981)',
-      subtitle: 'Simple & Secure Payment Process',
-      title: 'Giải Pháp Tài Chính Hoàn Hảo',
-      buttonText: 'Đăng kí vay ngay',
-      buttonLink: '/hop-dong-vay'
+      buttonLink: '/dang-ki-vay'
     }
+   
   ];
 
   swiperOptions = JSON.stringify({

@@ -1,0 +1,205 @@
+<div class="loan-detail-page" *ngIf="loanPackage">
+  <!-- Page Header -->
+  <section class="page-header">
+    <div class="page-header-bg"></div>
+    <div class="container">
+      <nav class="breadcrumb">
+        <a [routerLink]="'/'" class="breadcrumb-item">Trang chủ</a>
+        <span class="breadcrumb-separator">/</span>
+        <a [routerLink]="'/goi-vay'" class="breadcrumb-item">Gói vay</a>
+        <span class="breadcrumb-separator">/</span>
+        <span class="breadcrumb-item active">{{loanPackage.tenGoiVay}}</span>
+      </nav>
+      <div class="page-header-content">
+        <div class="package-icon-large">
+          <span class="icon-emoji">{{loanPackage.icon}}</span>
+        </div>
+        <div class="header-text">
+          <h1 class="page-title">{{loanPackage.tenGoiVay}}</h1>
+          <p class="page-subtitle">{{loanPackage.moTa1}}</p>
+          <div class="header-features">
+            <div class="feature-badge">
+              <span class="feature-label">Lãi suất từ</span>
+              <span class="feature-value">{{getInterestRateText(loanPackage.laiSuat)}}</span>
+            </div>
+            <div class="feature-badge">
+              <span class="feature-label">Hạn mức</span>
+              <span class="feature-value">{{formatCurrency(loanPackage.hanMuc)}}</span>
+            </div>
+            <div class="feature-badge">
+              <span class="feature-label">Thời hạn</span>
+              <span class="feature-value">{{loanPackage.thoiHan}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <section class="main-content">
+    <div class="container">
+      <div class="content-grid">
+        <!-- Left Column -->
+        <div class="content-main">
+          <!-- Overview -->
+          <div class="content-section">
+            <h2 class="section-title">Tổng quan gói vay</h2>
+            <p class="section-content">{{loanPackage.moTa2}}</p>
+          </div>
+
+          <!-- Advantages -->
+          <div class="content-section">
+            <h2 class="section-title">Ưu điểm nổi bật</h2>
+            <div class="advantages-grid">
+              <div class="advantage-item" *ngFor="let advantage of loanPackage.uuDiem">
+                <div class="advantage-icon">✓</div>
+                <span>{{advantage}}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Process -->
+          <div class="content-section">
+            <h2 class="section-title">Quy trình vay vốn</h2>
+            <div class="process-steps">
+              <div class="process-step" *ngFor="let step of loanPackage.quyTrinh">
+                <div class="step-number">{{step.buoc}}</div>
+                <div class="step-icon">{{step.icon}}</div>
+                <div class="step-content">
+                  <h4>{{step.tieuDe}}</h4>
+                  <p>{{step.moTa}}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Requirements -->
+          <div class="content-section">
+            <h2 class="section-title">Yêu cầu hồ sơ</h2>
+            <div class="requirements-list">
+              <div class="requirement-item" *ngFor="let requirement of loanPackage.yeuCauHoSo">
+                <div class="requirement-icon">📄</div>
+                <span>{{requirement}}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Terms -->
+          <div class="content-section">
+            <h2 class="section-title">Điều kiện vay</h2>
+            <div class="terms-content">
+              <p>{{loanPackage.dieuKien}}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Sidebar -->
+        <div class="content-sidebar">
+          <!-- Quick Info Card -->
+          <div class="info-card">
+            <h3 class="card-title">Thông tin chi tiết</h3>
+            <div class="info-items">
+              <div class="info-item">
+                <span class="info-label">Mã gói vay:</span>
+                <span class="info-value">{{loanPackage.maGoiVay}}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Lãi suất:</span>
+                <span class="info-value highlight">{{getInterestRateText(loanPackage.laiSuat)}}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Hạn mức tối đa:</span>
+                <span class="info-value">{{formatCurrency(loanPackage.hanMuc)}}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Thời hạn vay:</span>
+                <span class="info-value">{{loanPackage.thoiHan}}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Trạng thái:</span>
+                <span class="info-value" [class]="loanPackage.trangThai ? 'status-active' : 'status-inactive'">
+                  {{loanPackage.trangThai ? 'Đang mở' : 'Tạm đóng'}}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Card -->
+          <div class="action-card">
+            <h3 class="card-title">Đăng ký ngay</h3>
+            <p class="card-subtitle">Bắt đầu quy trình vay vốn với chúng tôi</p>
+            <div class="action-buttons">
+              <a [routerLink]="['/dang-ky-vay', loanPackage.maGoiVay]" 
+                 class="btn btn-primary btn-full">
+                Đăng ký vay ngay
+              </a>
+              <a href="tel:+84123456789" class="btn btn-secondary btn-full">
+                <span class="btn-icon">📞</span>
+                Gọi tư vấn
+              </a>
+            </div>
+          </div>
+
+          <!-- Calculator Card -->
+          <div class="calculator-card">
+            <h3 class="card-title">Tính toán khoản vay</h3>
+            <p class="card-subtitle">Ước tính số tiền trả hàng tháng</p>
+            <div class="calculator-info">
+              <div class="calc-item">
+                <span class="calc-label">Vay 100 triệu trong 12 tháng:</span>
+                <span class="calc-value">{{calculateMonthlyPayment(100000000, loanPackage.laiSuat, 12)}}/tháng</span>
+              </div>
+              <div class="calc-item">
+                <span class="calc-label">Vay 200 triệu trong 24 tháng:</span>
+                <span class="calc-value">{{calculateMonthlyPayment(200000000, loanPackage.laiSuat, 24)}}/tháng</span>
+              </div>
+            </div>
+            <a [routerLink]="'/tinh-lai-suat'" class="btn btn-outline btn-full">
+              Máy tính chi tiết
+            </a>
+          </div>
+
+          <!-- Contact Card -->
+          <div class="contact-card">
+            <h3 class="card-title">Cần hỗ trợ?</h3>
+            <div class="contact-info">
+              <div class="contact-item">
+                <span class="contact-icon">📞</span>
+                <div class="contact-details">
+                  <strong>Hotline</strong>
+                  <span>+84 123 456 789</span>
+                </div>
+              </div>
+              <div class="contact-item">
+                <span class="contact-icon">✉️</span>
+                <div class="contact-details">
+                  <strong>Email</strong>
+                  <span>support&#64;pyloan.vn</span>
+                </div>
+              </div>
+              <div class="contact-item">
+                <span class="contact-icon">⏰</span>
+                <div class="contact-details">
+                  <strong>Giờ làm việc</strong>
+                  <span>24/7 - Tất cả các ngày</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- Not Found Message -->
+<div class="not-found" *ngIf="!loanPackage">
+  <div class="container">
+    <div class="not-found-content">
+      <h2>Không tìm thấy gói vay</h2>
+      <p>Gói vay bạn đang tìm kiếm không tồn tại hoặc đã bị xóa.</p>
+      <a [routerLink]="'/goi-vay'" class="btn btn-primary">Quay lại danh sách</a>
+    </div>
+  </div>
+</div>

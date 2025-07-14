@@ -3,7 +3,7 @@
     <div class="container">
       <!-- Logo -->
       <a class="navbar-brand" [routerLink]="'/'">
-        <img src="/assets/images/logo.png" alt="PYLOAN" class="logo-img">
+        <!-- <img src="/assets/images/logo.svg" alt="PYLOAN" class="logo-img"> -->
         <span class="logo-text">PYLOAN</span>
       </a>
 
@@ -14,18 +14,19 @@
 
       <!-- Navigation menu -->
       <div class="navbar-collapse" [class.show]="isMobileMenuOpen">
-        <ul class="navbar-nav me-auto">
+        <ul class="navbar-nav">
           <li class="nav-item">
             <a class="nav-link" [routerLink]="'/'" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Trang chủ</a>
           </li>
           <li class="nav-item dropdown" (mouseenter)="showDropdown = true" (mouseleave)="showDropdown = false">
-            <a class="nav-link dropdown-toggle" href="#" [class.show]="showDropdown">
+            <a class="nav-link dropdown-toggle" [routerLink]="'/goi-vay'" [class.show]="showDropdown">
               Các gói vay
             </a>
             <div class="dropdown-menu" [class.show]="showDropdown">
-              <a class="dropdown-item" [routerLink]="'/khoản-vay-kinh-doanh'">Khoản vay kinh doanh</a>
-              <a class="dropdown-item" [routerLink]="'/khoản-vay-cá-nhân'">Khoản vay cá nhân</a>
-              <a class="dropdown-item" [routerLink]="'/khoản-vay-thế-chấp'">Khoản vay thế chấp</a>
+              <a class="dropdown-item" [routerLink]="'/goi-vay'">Tất cả gói vay</a>
+              <a class="dropdown-item" [routerLink]="'/goi-vay/chi-tiet/VKD001'">Vay kinh doanh</a>
+              <a class="dropdown-item" [routerLink]="'/goi-vay/chi-tiet/VCN002'">Vay cá nhân</a>
+              <a class="dropdown-item" [routerLink]="'/goi-vay/chi-tiet/VTC003'">Vay thế chấp</a>
             </div>
           </li>
           <li class="nav-item">
@@ -42,10 +43,10 @@
         <!-- Contact info -->
         <div class="header-contact">
           <div class="contact-item">
-            <i class="icon-phone"></i>
+            <span class="phone-icon">📞</span>
             <span>+84 123 456 789</span>
           </div>
-          <a [routerLink]="'/đăng-ký-vay'" class="btn btn-primary">Đăng ký vay ngay</a>
+          <a [routerLink]="'/dang-ky-vay'" class="btn btn-primary">Đăng ký vay ngay</a>
         </div>
       </div>
     </div>

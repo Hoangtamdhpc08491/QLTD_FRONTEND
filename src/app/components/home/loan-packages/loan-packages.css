@@ -68,15 +68,17 @@
   margin-bottom: 25px;
 }
 
+.package-icon .icon-emoji {
+  font-size: 30px;
+  color: white;
+}
+
 .package-icon i {
   font-size: 30px;
   color: white;
 }
 
 /* Icon styles */
-.business-icon::before { content: "💼"; }
-.personal-icon::before { content: "👤"; }
-.mortgage-icon::before { content: "🏠"; }
 
 .package-title {
   color: #111827;
@@ -118,18 +120,16 @@
   flex-shrink: 0;
 }
 
+.feature-icon .icon-emoji {
+  font-size: 16px;
+}
+
 .feature-icon i {
   font-size: 16px;
   color: #1e3a8a;
 }
 
 /* Feature icon styles */
-.speed-icon::before { content: "⚡"; }
-.money-icon::before { content: "💰"; }
-.online-icon::before { content: "💻"; }
-.fast-icon::before { content: "🚀"; }
-.low-rate-icon::before { content: "📉"; }
-.high-amount-icon::before { content: "💎"; }
 
 .feature-content h4 {
   color: #111827;
@@ -174,24 +174,41 @@
   font-weight: 700;
 }
 
+/* Package Actions */
+.package-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
 .package-btn {
+  flex: 1;
+  display: inline-block;
+  padding: 12px 20px;
   background: linear-gradient(135deg, #1e3a8a, #3b82f6);
   color: white;
-  padding: 15px 30px;
-  border: none;
-  border-radius: 25px;
-  font-size: 16px;
-  font-weight: 600;
   text-decoration: none;
-  display: block;
+  border-radius: 25px;
+  font-weight: 600;
   text-align: center;
   transition: all 0.3s ease;
-  cursor: pointer;
+  font-size: 14px;
 }
 
 .package-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(30, 58, 138, 0.3);
+  box-shadow: 0 5px 15px rgba(30, 58, 138, 0.3);
+}
+
+.package-btn-outline {
+  background: transparent;
+  color: #1e3a8a;
+  border: 2px solid #1e3a8a;
+}
+
+.package-btn-outline:hover {
+  background: #1e3a8a;
+  color: white;
 }
 
 @media (max-width: 768px) {

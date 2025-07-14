@@ -1,0 +1,367 @@
+<div class="loan-application-page">
+  <!-- Progress Header -->
+  <section class="progress-header">
+    <div class="container">
+      <div class="progress-steps">
+        <div class="step" 
+             *ngFor="let step of [1,2,3,4]; let i = index"
+             [class.active]="currentStep === step"
+             [class.completed]="isStepCompleted(step)"
+             (click)="goToStep(step)">
+          <div class="step-number">{{step}}</div>
+          <div class="step-title">{{getStepTitle(step)}}</div>
+        </div>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="(currentStep / totalSteps) * 100"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Form -->
+  <section class="form-section">
+    <div class="container">
+      <form #loanForm="ngForm" (ngSubmit)="onSubmit(loanForm)" class="loan-form">
+        
+        <!-- Step 1: Chọn gói vay -->
+        <div class="form-step" *ngIf="currentStep === 1">
+          <div class="step-header">
+            <h2>Chọn gói vay phù hợp</h2>
+            <p>Lựa chọn gói vay tốt nhất cho nhu cầu của bạn</p>
+          </div>
+          
+          <div class="packages-selection">
+            <div class="package-option" 
+                 *ngFor="let package of loanPackages"
+                 [class.selected]="application.maGoiVay === package.maGoiVay"
+                 (click)="selectPackage(package.maGoiVay)">
+              <div class="package-icon">
+                <span class="icon-emoji">{{package.icon}}</span>
+              </div>
+              <div class="package-info">
+                <h3>{{package.tenGoiVay}}</h3>
+                <div class="package-details">
+                  <span class="detail-item">
+                    <strong>Lãi suất:</strong> {{package.laiSuat}}%/tháng
+                  </span>
+                  <span class="detail-item">
+                    <strong>Hạn mức:</strong> {{formatCurrency(package.hanMuc)}}
+                  </span>
+                  <span class="detail-item">
+                    <strong>Thời hạn:</strong> {{package.thoiHan}}
+                  </span>
+                </div>
+              </div>
+              <div class="selection-indicator">
+                <span class="checkmark" *ngIf="application.maGoiVay === package.maGoiVay">✓</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="form-actions">
+            <button type="button" class="btn btn-primary" 
+                    [disabled]="!application.maGoiVay"
+                    (click)="nextStep()">
+              Tiếp theo
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 2: Thông tin cá nhân -->
+        <div class="form-step" *ngIf="currentStep === 2">
+          <div class="step-header">
+            <h2>Thông tin cá nhân</h2>
+            <p>Vui lòng cung cấp thông tin chính xác để được hỗ trợ tốt nhất</p>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="hoTen">Họ và tên <span class="required">*</span></label>
+              <input type="text" id="hoTen" name="hoTen" 
+                     [(ngModel)]="application.hoTen" 
+                     class="form-control"
+                     required
+                     placeholder="Nhập họ và tên đầy đủ">
+            </div>
+
+            <div class="form-group">
+              <label for="email">Email <span class="required">*</span></label>
+              <input type="email" id="email" name="email" 
+                     [(ngModel)]="application.email" 
+                     class="form-control"
+                     required
+                     placeholder="example@email.com">
+            </div>
+
+            <div class="form-group">
+              <label for="soDienThoai">Số điện thoại <span class="required">*</span></label>
+              <input type="tel" id="soDienThoai" name="soDienThoai" 
+                     [(ngModel)]="application.soDienThoai" 
+                     class="form-control"
+                     required
+                     placeholder="0123456789">
+            </div>
+
+            <div class="form-group">
+              <label for="cmnd">CMND/CCCD <span class="required">*</span></label>
+              <input type="text" id="cmnd" name="cmnd" 
+                     [(ngModel)]="application.cmnd" 
+                     class="form-control"
+                     required
+                     placeholder="Số CMND/CCCD">
+            </div>
+
+            <div class="form-group full-width">
+              <label for="diaChi">Địa chỉ</label>
+              <input type="text" id="diaChi" name="diaChi" 
+                     [(ngModel)]="application.diaChi" 
+                     class="form-control"
+                     placeholder="Địa chỉ hiện tại">
+            </div>
+
+            <div class="form-group">
+              <label for="ngaySinh">Ngày sinh</label>
+              <input type="date" id="ngaySinh" name="ngaySinh" 
+                     [(ngModel)]="application.ngaySinh" 
+                     class="form-control">
+            </div>
+
+            <div class="form-group">
+              <label for="gioiTinh">Giới tính</label>
+              <select id="gioiTinh" name="gioiTinh" 
+                      [(ngModel)]="application.gioiTinh" 
+                      class="form-control">
+                <option value="">Chọn giới tính</option>
+                <option *ngFor="let option of genderOptions" [value]="option.value">
+                  {{option.label}}
+                </option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="tinhTrangHonNhan">Tình trạng hôn nhân</label>
+              <select id="tinhTrangHonNhan" name="tinhTrangHonNhan" 
+                      [(ngModel)]="application.tinhTrangHonNhan" 
+                      class="form-control">
+                <option value="">Chọn tình trạng</option>
+                <option *ngFor="let option of maritalOptions" [value]="option.value">
+                  {{option.label}}
+                </option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="ngheNghiep">Nghề nghiệp</label>
+              <select id="ngheNghiep" name="ngheNghiep" 
+                      [(ngModel)]="application.ngheNghiep" 
+                      class="form-control">
+                <option value="">Chọn nghề nghiệp</option>
+                <option *ngFor="let option of occupationOptions" [value]="option.value">
+                  {{option.label}}
+                </option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="thuNhapHangThang">Thu nhập hàng tháng (VNĐ)</label>
+              <input type="number" id="thuNhapHangThang" name="thuNhapHangThang" 
+                     [(ngModel)]="application.thuNhapHangThang" 
+                     class="form-control"
+                     placeholder="Nhập thu nhập hàng tháng"
+                     min="0">
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" (click)="previousStep()">
+              Quay lại
+            </button>
+            <button type="button" class="btn btn-primary" (click)="nextStep()">
+              Tiếp theo
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 3: Thông tin vay vốn -->
+        <div class="form-step" *ngIf="currentStep === 3">
+          <div class="step-header">
+            <h2>Thông tin vay vốn</h2>
+            <p>Chi tiết về khoản vay bạn mong muốn</p>
+          </div>
+
+          <div class="selected-package-info" *ngIf="selectedPackage">
+            <h3>Gói vay đã chọn: {{selectedPackage.tenGoiVay}}</h3>
+            <div class="package-summary">
+              <span>Lãi suất: {{selectedPackage.laiSuat}}%/tháng</span>
+              <span>Hạn mức tối đa: {{formatCurrency(selectedPackage.hanMuc)}}</span>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="soTienVay">Số tiền cần vay (VNĐ) <span class="required">*</span></label>
+              <input type="number" id="soTienVay" name="soTienVay" 
+                     [(ngModel)]="application.soTienVay" 
+                     class="form-control"
+                     required
+                     [max]="selectedPackage?.hanMuc || 999999999999"
+                     min="1000000"
+                     placeholder="Nhập số tiền cần vay">
+              <small class="form-help" *ngIf="selectedPackage">
+                Tối đa: {{formatCurrency(selectedPackage.hanMuc)}}
+              </small>
+            </div>
+
+            <div class="form-group">
+              <label for="thoiHanVay">Thời hạn vay (tháng) <span class="required">*</span></label>
+              <select id="thoiHanVay" name="thoiHanVay" 
+                      [(ngModel)]="application.thoiHanVay" 
+                      class="form-control"
+                      required>
+                <option value="6">6 tháng</option>
+                <option value="12">12 tháng</option>
+                <option value="18">18 tháng</option>
+                <option value="24">24 tháng</option>
+                <option value="36">36 tháng</option>
+              </select>
+            </div>
+
+            <div class="form-group full-width">
+              <label for="mucDichVay">Mục đích vay <span class="required">*</span></label>
+              <select id="mucDichVay" name="mucDichVay" 
+                      [(ngModel)]="application.mucDichVay" 
+                      class="form-control"
+                      required>
+                <option value="">Chọn mục đích vay</option>
+                <option *ngFor="let option of loanPurposeOptions" [value]="option.value">
+                  {{option.label}}
+                </option>
+              </select>
+            </div>
+
+            <div class="form-group full-width">
+              <label for="ghiChu">Ghi chú thêm</label>
+              <textarea id="ghiChu" name="ghiChu" 
+                        [(ngModel)]="application.ghiChu" 
+                        class="form-control"
+                        rows="4"
+                        placeholder="Thông tin bổ sung (không bắt buộc)"></textarea>
+            </div>
+          </div>
+
+          <!-- Loan Calculator -->
+          <div class="loan-calculator" *ngIf="application.soTienVay && application.thoiHanVay && selectedPackage">
+            <h3>Ước tính khoản thanh toán</h3>
+            <div class="calculation-result">
+              <div class="calc-item">
+                <span class="calc-label">Số tiền vay:</span>
+                <span class="calc-value">{{formatCurrency(application.soTienVay)}}</span>
+              </div>
+              <div class="calc-item">
+                <span class="calc-label">Thời hạn:</span>
+                <span class="calc-value">{{application.thoiHanVay}} tháng</span>
+              </div>
+              <div class="calc-item">
+                <span class="calc-label">Lãi suất:</span>
+                <span class="calc-value">{{selectedPackage.laiSuat}}%/tháng</span>
+              </div>
+              <div class="calc-item highlight">
+                <span class="calc-label">Thanh toán hàng tháng:</span>
+                <span class="calc-value">{{formatCurrency(calculateMonthlyPayment())}}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" (click)="previousStep()">
+              Quay lại
+            </button>
+            <button type="button" class="btn btn-primary" (click)="nextStep()">
+              Tiếp theo
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 4: Xác nhận đăng ký -->
+        <div class="form-step" *ngIf="currentStep === 4">
+          <div class="step-header">
+            <h2>Xác nhận thông tin đăng ký</h2>
+            <p>Kiểm tra lại thông tin trước khi gửi đăng ký</p>
+          </div>
+
+          <div class="confirmation-summary">
+            <!-- Personal Info -->
+            <div class="summary-section">
+              <h3>Thông tin cá nhân</h3>
+              <div class="summary-grid">
+                <div class="summary-item">
+                  <span class="summary-label">Họ tên:</span>
+                  <span class="summary-value">{{application.hoTen}}</span>
+                </div>
+                <div class="summary-item">
+                  <span class="summary-label">Email:</span>
+                  <span class="summary-value">{{application.email}}</span>
+                </div>
+                <div class="summary-item">
+                  <span class="summary-label">Điện thoại:</span>
+                  <span class="summary-value">{{application.soDienThoai}}</span>
+                </div>
+                <div class="summary-item">
+                  <span class="summary-label">CMND/CCCD:</span>
+                  <span class="summary-value">{{application.cmnd}}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Loan Info -->
+            <div class="summary-section">
+              <h3>Thông tin vay vốn</h3>
+              <div class="summary-grid">
+                <div class="summary-item">
+                  <span class="summary-label">Gói vay:</span>
+                  <span class="summary-value">{{selectedPackage?.tenGoiVay}}</span>
+                </div>
+                <div class="summary-item">
+                  <span class="summary-label">Số tiền vay:</span>
+                  <span class="summary-value">{{formatCurrency(application.soTienVay)}}</span>
+                </div>
+                <div class="summary-item">
+                  <span class="summary-label">Thời hạn:</span>
+                  <span class="summary-value">{{application.thoiHanVay}} tháng</span>
+                </div>
+                <div class="summary-item">
+                  <span class="summary-label">Mục đích:</span>
+                  <span class="summary-value">{{application.mucDichVay}}</span>
+                </div>
+                <div class="summary-item highlight">
+                  <span class="summary-label">Thanh toán hàng tháng:</span>
+                  <span class="summary-value">{{formatCurrency(calculateMonthlyPayment())}}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="terms-agreement">
+            <label class="checkbox-label">
+              <input type="checkbox" required name="agreeTerms">
+              <span class="checkmark-custom"></span>
+              Tôi đồng ý với 
+              <a href="/dieu-khoan" target="_blank">điều khoản và điều kiện</a> 
+              của dịch vụ
+            </label>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" (click)="previousStep()">
+              Quay lại
+            </button>
+            <button type="submit" class="btn btn-primary btn-submit">
+              <span class="btn-icon">✓</span>
+              Gửi đăng ký
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </section>
+</div>

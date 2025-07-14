@@ -1,0 +1,90 @@
+<div class="loan-packages-page">
+  <!-- Page Header -->
+  <section class="page-header">
+    <div class="page-header-bg"></div>
+    <div class="container">
+      <nav class="breadcrumb">
+        <a [routerLink]="'/'" class="breadcrumb-item">Trang chủ</a>
+        <span class="breadcrumb-separator">/</span>
+        <span class="breadcrumb-item active">Danh sách gói vay</span>
+      </nav>
+      <h1 class="page-title">Danh Sách Gói Vay</h1>
+      <p class="page-subtitle">Chọn gói vay phù hợp với nhu cầu của bạn</p>
+    </div>
+  </section>
+
+  <!-- Loan Packages Grid -->
+  <section class="loan-packages-section">
+    <div class="container">
+      <div class="section-header text-center">
+        <p class="section-subtitle">Các gói vay</p>
+        <h2 class="section-title">Tìm gói vay phù hợp nhất cho bạn</h2>
+      </div>
+
+      <div class="packages-grid">
+        <div class="package-card" *ngFor="let package of loanPackages">
+          <div class="package-image">
+            <div class="package-icon">
+              <span class="icon-emoji">{{package.icon}}</span>
+            </div>
+            <div class="package-status" [class.active]="package.trangThai">
+              {{package.trangThai ? 'Đang mở' : 'Tạm đóng'}}
+            </div>
+          </div>
+
+          <div class="package-content">
+            <h3 class="package-title">
+              <a [routerLink]="['/goi-vay/chi-tiet', package.maGoiVay]">
+                {{package.tenGoiVay}}
+              </a>
+            </h3>
+            <p class="package-description">{{package.moTa1}}</p>
+
+            <div class="package-features">
+              <div class="feature-item">
+                <span class="feature-label">Lãi suất từ:</span>
+                <span class="feature-value highlight">{{getInterestRateText(package.laiSuat)}}</span>
+              </div>
+              <div class="feature-item">
+                <span class="feature-label">Hạn mức:</span>
+                <span class="feature-value">{{formatCurrency(package.hanMuc)}}</span>
+              </div>
+              <div class="feature-item">
+                <span class="feature-label">Thời hạn:</span>
+                <span class="feature-value">{{package.thoiHan}}</span>
+              </div>
+            </div>
+
+            <div class="package-actions">
+              <a [routerLink]="['/goi-vay/chi-tiet', package.maGoiVay]" 
+                 class="btn btn-outline">
+                Xem chi tiết
+              </a>
+              <a [routerLink]="['/dang-ky-vay', package.maGoiVay]" 
+                 class="btn btn-primary">
+                Đăng ký ngay
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Call to Action -->
+      <div class="cta-section">
+        <div class="cta-content">
+          <h3>Cần tư vấn thêm?</h3>
+          <p>Đội ngũ chuyên viên của chúng tôi sẵn sàng hỗ trợ bạn 24/7</p>
+          <div class="cta-actions">
+            <a href="tel:+84123456789" class="btn btn-secondary">
+              <span class="btn-icon">📞</span>
+              Gọi ngay
+            </a>
+            <a [routerLink]="'/lien-he'" class="btn btn-outline">
+              Liên hệ tư vấn
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

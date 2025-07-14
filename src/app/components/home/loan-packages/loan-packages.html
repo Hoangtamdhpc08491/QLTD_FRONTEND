@@ -8,7 +8,7 @@
     <div class="loan-packages-grid">
       <div class="loan-package-card" *ngFor="let package of loanPackages">
         <div class="package-icon">
-          <i [class]="package.icon"></i>
+          <span class="icon-emoji">{{package.icon}}</span>
         </div>
         <h3 class="package-title">{{package.title}}</h3>
         <p class="package-description">{{package.description}}</p>
@@ -16,7 +16,7 @@
         <div class="package-features">
           <div class="feature-item" *ngFor="let feature of package.features">
             <div class="feature-icon">
-              <i [class]="feature.icon"></i>
+              <span class="icon-emoji">{{feature.icon}}</span>
             </div>
             <div class="feature-content">
               <h4>{{feature.title}}</h4>
@@ -40,7 +40,10 @@
           </div>
         </div>
         
-        <a [routerLink]="package.link" class="package-btn">{{package.buttonText}}</a>
+        <div class="package-actions">
+          <a [routerLink]="['/goi-vay/chi-tiet', package.id]" class="package-btn package-btn-outline">Xem chi tiết</a>
+          <a [routerLink]="['/dang-ky-vay', package.id]" class="package-btn">{{package.buttonText}}</a>
+        </div>
       </div>
     </div>
   </div>

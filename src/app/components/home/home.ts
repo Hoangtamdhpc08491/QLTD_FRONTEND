@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Header } from '../shared/header/header';
+import { Footer } from '../shared/footer/footer';
 import { HeroSlider } from './hero-slider/hero-slider';
 import { AboutSection } from './about-section/about-section';
 import { LoanPackages } from './loan-packages/loan-packages';
@@ -12,6 +13,7 @@ import { Testimonials } from './testimonials/testimonials';
   imports: [
     CommonModule,
     Header,
+    Footer,
     HeroSlider,
     AboutSection,
     LoanPackages,
