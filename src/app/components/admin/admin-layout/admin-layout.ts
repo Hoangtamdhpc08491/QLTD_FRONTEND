@@ -19,6 +19,18 @@ export class AdminLayout {
       active: true
     },
     {
+      icon: '📦',
+      label: 'Quản lý gói vay',
+      route: '/admin/loan-packages',
+      active: false
+    },
+    {
+        icon: '📦',
+        label: 'Quản lý danh mục',
+        route: '/admin/categories',
+        active: false
+    },
+    {
       icon: '📋',
       label: 'Quản lý đơn vay',
       route: '/admin/loan-applications',

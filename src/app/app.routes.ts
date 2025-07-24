@@ -8,6 +8,8 @@ import { NewsDetail } from './components/news/news-detail/news-detail';
 import { AdminLayout } from './components/admin/admin-layout/admin-layout';
 import { AdminDashboard } from './components/admin/admin-dashboard/admin-dashboard';
 import { AdminLoanApplications } from './components/admin/admin-loan-applications/admin-loan-applications';
+import { AdminLoanPackages } from './components/admin/admin-loan-packages/admin-loan-packages';
+import { AdminCategories } from './components/admin/admin-categories/admin-categories';
 import { AdminUserManagement } from './components/admin/admin-user-management/admin-user-management';
 
 export const routes: Routes = [
@@ -26,6 +28,8 @@ export const routes: Routes = [
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: AdminDashboard },
+      { path: 'loan-packages', component: AdminLoanPackages },
+      { path: 'categories', component: AdminCategories },
     ]
   },
   
