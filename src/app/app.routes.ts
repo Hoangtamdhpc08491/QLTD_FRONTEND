@@ -5,6 +5,10 @@ import { LoanPackageDetail } from './components/loan-packages/loan-package-detai
 import { LoanApplication } from './components/loan-packages/loan-application/loan-application';
 import { NewsList } from './components/news/news-list/news-list';
 import { NewsDetail } from './components/news/news-detail/news-detail';
+import { AdminLayout } from './components/admin/admin-layout/admin-layout';
+import { AdminDashboard } from './components/admin/admin-dashboard/admin-dashboard';
+import { AdminLoanApplications } from './components/admin/admin-loan-applications/admin-loan-applications';
+import { AdminUserManagement } from './components/admin/admin-user-management/admin-user-management';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -14,5 +18,16 @@ export const routes: Routes = [
   { path: 'dang-ky-vay/:packageId', component: LoanApplication },
   { path: 'tin-tuc', component: NewsList },
   { path: 'tin-tuc/:id', component: NewsDetail },
+  
+  // Admin Routes
+  {
+    path: 'admin',
+    component: AdminLayout,
+    children: [
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: 'dashboard', component: AdminDashboard },
+    ]
+  },
+  
   { path: '**', redirectTo: '' }
 ];

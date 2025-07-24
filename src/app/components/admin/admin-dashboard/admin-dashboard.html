@@ -1,0 +1,128 @@
+<div class="admin-dashboard">
+  <!-- Header -->
+  <div class="dashboard-header">
+    <h1>Bảng điều khiển Admin</h1>
+    <p>Quản lý đơn vay và hệ thống</p>
+  </div>
+
+  <!-- Stats Overview -->
+  <div class="stats-grid">
+    <div class="stat-card total">
+      <div class="stat-icon">📊</div>
+      <div class="stat-content">
+        <h3>{{stats.totalApplications}}</h3>
+        <p>Tổng đơn vay</p>
+      </div>
+    </div>
+
+    <div class="stat-card pending">
+      <div class="stat-icon">⏳</div>
+      <div class="stat-content">
+        <h3>{{stats.pendingApplications}}</h3>
+        <p>Chờ duyệt</p>
+      </div>
+    </div>
+
+    <div class="stat-card approved">
+      <div class="stat-icon">✅</div>
+      <div class="stat-content">
+        <h3>{{stats.approvedApplications}}</h3>
+        <p>Đã duyệt</p>
+      </div>
+    </div>
+
+    <div class="stat-card rejected">
+      <div class="stat-icon">❌</div>
+      <div class="stat-content">
+        <h3>{{stats.rejectedApplications}}</h3>
+        <p>Từ chối</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Total Loan Amount -->
+  <div class="loan-amount-card">
+    <div class="amount-icon">💰</div>
+    <div class="amount-content">
+      <h2>{{formatCurrency(stats.totalLoanAmount)}}</h2>
+      <p>Tổng số tiền đã cho vay</p>
+    </div>
+  </div>
+
+  <!-- Recent Applications -->
+  <div class="recent-applications">
+    <div class="section-header">
+      <h2>Đơn vay gần đây</h2>
+      <button class="btn btn-primary" (click)="viewAllApplications()">
+        Xem tất cả
+      </button>
+    </div>
+
+    <div class="applications-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Mã đơn</th>
+            <th>Họ tên</th>
+            <th>Email</th>
+            <th>Số tiền</th>
+            <th>Gói vay</th>
+            <th>Ngày nộp</th>
+            <th>Trạng thái</th>
+            <th>Thao tác</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let app of recentApplications">
+            <td class="app-id">{{app.id}}</td>
+            <td class="app-name">{{app.hoTen}}</td>
+            <td class="app-email">{{app.email}}</td>
+            <td class="app-amount">{{formatCurrency(app.soTienVay)}}</td>
+            <td class="app-package">{{app.goiVay}}</td>
+            <td class="app-date">{{app.ngayNop | date:'dd/MM/yyyy'}}</td>
+            <td>
+              <span class="status-badge" [class]="getStatusClass(app.trangThai)">
+                {{app.trangThai}}
+              </span>
+            </td>
+            <td class="app-actions">
+              <button class="btn btn-sm btn-outline" (click)="viewApplication(app.id)">
+                Xem chi tiết
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="quick-actions">
+    <h2>Thao tác nhanh</h2>
+    <div class="actions-grid">
+      <button class="action-card" (click)="viewAllApplications()">
+        <div class="action-icon">📋</div>
+        <h3>Quản lý đơn vay</h3>
+        <p>Xem và duyệt đơn vay</p>
+      </button>
+
+      <button class="action-card" (click)="navigateTo('/admin/users')">
+        <div class="action-icon">👥</div>
+        <h3>Quản lý người dùng</h3>
+        <p>Thông tin khách hàng</p>
+      </button>
+
+      <button class="action-card">
+        <div class="action-icon">📊</div>
+        <h3>Báo cáo</h3>
+        <p>Thống kê và báo cáo</p>
+      </button>
+
+      <button class="action-card">
+        <div class="action-icon">⚙️</div>
+        <h3>Cài đặt</h3>
+        <p>Cấu hình hệ thống</p>
+      </button>
+    </div>
+  </div>
+</div>

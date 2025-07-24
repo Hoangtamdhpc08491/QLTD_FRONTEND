@@ -1,0 +1,70 @@
+<div class="admin-layout" [class.sidebar-collapsed]="isSidebarCollapsed">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo" *ngIf="!isSidebarCollapsed">
+        <h2>🏛️ Admin Panel</h2>
+      </div>
+      <div class="logo-mini" *ngIf="isSidebarCollapsed">
+        <span>🏛️</span>
+      </div>
+      <button class="sidebar-toggle" (click)="toggleSidebar()">
+        <span *ngIf="!isSidebarCollapsed">‹</span>
+        <span *ngIf="isSidebarCollapsed">›</span>
+      </button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <ul class="nav-list">
+        <li *ngFor="let item of menuItems" 
+            class="nav-item"
+            [class.active]="item.active">
+          <a class="nav-link" (click)="navigateTo(item.route)">
+            <span class="nav-icon">{{item.icon}}</span>
+            <span class="nav-label" *ngIf="!isSidebarCollapsed">{{item.label}}</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="logout-btn" (click)="logout()">
+        <span class="logout-icon">🚪</span>
+        <span class="logout-label" *ngIf="!isSidebarCollapsed">Đăng xuất</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Top Bar -->
+    <header class="top-bar">
+      <div class="top-bar-left">
+        <button class="menu-toggle" (click)="toggleSidebar()">
+          <span>☰</span>
+        </button>
+        <h1 class="page-title">Quản trị hệ thống</h1>
+      </div>
+      
+      <div class="top-bar-right">
+        <div class="user-info">
+          <div class="user-avatar">👤</div>
+          <div class="user-details">
+            <span class="user-name">Admin User</span>
+            <span class="user-role">Quản trị viên</span>
+          </div>
+        </div>
+        
+        <div class="header-actions">
+          <button class="action-btn">🔔</button>
+          <button class="action-btn" (click)="logout()">🚪</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Page Content -->
+    <div class="page-content">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+</div>
