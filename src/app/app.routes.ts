@@ -28,8 +28,11 @@ export const routes: Routes = [
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: AdminDashboard },
+      { path: 'loan-applications', component: AdminLoanApplications },
+      { path: 'loan-applications/:id', component: AdminLoanApplications },
       { path: 'loan-packages', component: AdminLoanPackages },
       { path: 'categories', component: AdminCategories },
+      { path: 'users', component: AdminUserManagement },
     ]
   },
   

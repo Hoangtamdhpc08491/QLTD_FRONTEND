@@ -1,0 +1,151 @@
+<div class="admin-loan-applications">
+  <!-- Header -->
+  <div class="page-header">
+    <h1>Quản lý đơn vay</h1>
+    <div class="header-actions">
+      <button class="btn btn-outline" (click)="exportToExcel()">
+        📊 Xuất Excel
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-section">
+    <div class="search-box">
+      <input type="text" 
+             [(ngModel)]="searchTerm" 
+             (ngModelChange)="applyFilters()"
+             placeholder="Tìm kiếm theo tên, email, mã đơn..."
+             class="search-input">
+      <span class="search-icon">🔍</span>
+    </div>
+
+    <div class="filter-controls">
+      <select [(ngModel)]="statusFilter" 
+              (ngModelChange)="applyFilters()"
+              class="filter-select">
+        <option value="">Tất cả trạng thái</option>
+        <option value="Chờ duyệt">Chờ duyệt</option>
+        <option value="Đã duyệt">Đã duyệt</option>
+        <option value="Từ chối">Từ chối</option>
+      </select>
+
+      <input type="date" 
+             [(ngModel)]="dateFilter"
+             (ngModelChange)="applyFilters()"
+             class="filter-date">
+    </div>
+  </div>
+
+  <!-- Results Summary -->
+  <div class="results-summary">
+    <p>Hiển thị {{getPaginatedApplications().length}} trong tổng số {{filteredApplications.length}} đơn vay</p>
+  </div>
+
+  <!-- Applications Table -->
+  <div class="applications-table-container">
+    <table class="applications-table">
+      <thead>
+        <tr>
+          <th>Mã đơn</th>
+          <th>Thông tin khách hàng</th>
+          <th>Gói vay</th>
+          <th>Số tiền</th>
+          <th>Thời hạn</th>
+          <th>Ngày nộp</th>
+          <th>Trạng thái</th>
+          <th>Thao tác</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let app of getPaginatedApplications()" class="application-row">
+          <td class="app-id">
+            <strong>{{app.id}}</strong>
+          </td>
+          
+          <td class="customer-info">
+            <div class="customer-details">
+              <div class="customer-name">{{app.hoTen}}</div>
+              <div class="customer-contact">
+                <small>{{app.email}}</small><br>
+                <small>{{app.soDienThoai}}</small>
+              </div>
+            </div>
+          </td>
+
+          <td class="loan-package">
+            <div class="package-info">
+              <div class="package-name">{{app.goiVay}}</div>
+              <small>Lãi suất: {{app.laiSuat}}%/tháng</small>
+            </div>
+          </td>
+
+          <td class="loan-amount">
+            <strong>{{formatCurrency(app.soTienVay)}}</strong>
+          </td>
+
+          <td class="loan-term">
+            {{app.thoiHanVay}} tháng
+          </td>
+
+          <td class="submit-date">
+            {{app.ngayNop | date:'dd/MM/yyyy'}}
+          </td>
+
+          <td class="status-cell">
+            <span class="status-badge" [class]="getStatusClass(app.trangThai)">
+              {{app.trangThai}}
+            </span>
+            <div class="status-details" *ngIf="app.ngayDuyet">
+              <small>{{app.ngayDuyet | date:'dd/MM/yyyy'}}</small>
+              <small *ngIf="app.nguoiDuyet">bởi {{app.nguoiDuyet}}</small>
+            </div>
+          </td>
+
+          <td class="actions-cell">
+            <div class="action-buttons">
+              <button class="btn btn-sm btn-outline" (click)="viewApplication(app.id)">
+                👁️ Xem
+              </button>
+              
+              <ng-container *ngIf="app.trangThai === 'Chờ duyệt'">
+                <button class="btn btn-sm btn-success" (click)="approveApplication(app)">
+                  ✅ Duyệt
+                </button>
+                <button class="btn btn-sm btn-danger" (click)="showRejectModal(app)">
+                  ❌ Từ chối
+                </button>
+              </ng-container>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Empty state -->
+    <div class="empty-state" *ngIf="getPaginatedApplications().length === 0">
+      <div class="empty-icon">📋</div>
+      <h3>Không tìm thấy đơn vay nào</h3>
+      <p>Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm</p>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination" *ngIf="totalPages > 1">
+    <button class="pagination-btn" 
+            [disabled]="currentPage === 1"
+            (click)="goToPage(currentPage - 1)">
+      ‹ Trước
+    </button>
+
+    <span class="pagination-info">
+      Trang {{currentPage}} / {{totalPages}}
+    </span>
+
+    <button class="pagination-btn" 
+            [disabled]="currentPage === totalPages"
+            (click)="goToPage(currentPage + 1)">
+      Sau ›
+    </button>
+  </div>
+</div>
