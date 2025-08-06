@@ -46,7 +46,26 @@
             <span class="phone-icon">📞</span>
             <span>+84 123 456 789</span>
           </div>
-          <a [routerLink]="'/dang-ky-vay'" class="btn btn-primary">Đăng ký vay ngay</a>
+          
+          <!-- User Menu (when logged in) -->
+          <div class="user-menu" *ngIf="currentUser" (mouseenter)="showUserDropdown = true" (mouseleave)="showUserDropdown = false">
+            <button class="user-button" [class.show]="showUserDropdown">
+              <span class="user-icon">👤</span>
+              <span>{{ currentUser.name }}</span>
+              <span class="dropdown-arrow">▼</span>
+            </button>
+            <div class="user-dropdown" [class.show]="showUserDropdown">
+              <a class="dropdown-item" [routerLink]="'/profile'">Hồ sơ cá nhân</a>
+              <a class="dropdown-item" [routerLink]="'/auth/change-password'">Đổi mật khẩu</a>
+              <button class="dropdown-item logout-btn" (click)="logout()">Đăng xuất</button>
+            </div>
+          </div>
+          
+          <!-- Auth buttons (when not logged in) -->
+          <div class="auth-buttons" *ngIf="!currentUser">
+            <a [routerLink]="'/auth/login'" class="btn btn-outline">Đăng nhập</a>
+            <a [routerLink]="'/auth/register'" class="btn btn-primary">Đăng ký</a>
+          </div>
         </div>
       </div>
     </div>

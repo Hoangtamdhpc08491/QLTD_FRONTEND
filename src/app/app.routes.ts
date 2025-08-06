@@ -11,6 +11,11 @@ import { AdminLoanApplications } from './components/admin/admin-loan-application
 import { AdminLoanPackages } from './components/admin/admin-loan-packages/admin-loan-packages';
 import { AdminCategories } from './components/admin/admin-categories/admin-categories';
 import { AdminUserManagement } from './components/admin/admin-user-management/admin-user-management';
+import { Login } from './components/auth/login/login';
+import { Register } from './components/auth/register/register';
+import { Profile } from './components/auth/profile/profile';
+import { ChangePassword } from './components/auth/change-password/change-password';
+import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -20,6 +25,12 @@ export const routes: Routes = [
   { path: 'dang-ky-vay/:packageId', component: LoanApplication },
   { path: 'tin-tuc', component: NewsList },
   { path: 'tin-tuc/:id', component: NewsDetail },
+  
+  // Auth Routes
+  { path: 'auth/login', component: Login },
+  { path: 'auth/register', component: Register },
+  { path: 'profile', component: Profile, canActivate: [authGuard] },
+  { path: 'auth/change-password', component: ChangePassword, canActivate: [authGuard] },
   
   // Admin Routes
   {
@@ -37,4 +48,4 @@ export const routes: Routes = [
   },
   
   { path: '**', redirectTo: '' }
-];
+]; 
