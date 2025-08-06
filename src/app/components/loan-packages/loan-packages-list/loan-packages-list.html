@@ -1,4 +1,4 @@
-<<!-- Header -->
+<!-- Header -->
 <app-header></app-header>
 
 <div class="loan-packages-page">
@@ -24,46 +24,59 @@
         <h2 class="section-title">Tìm gói vay phù hợp nhất cho bạn</h2>
       </div>
 
-      <div class="packages-grid">
-        <div class="package-card" *ngFor="let package of loanPackages">
+      <!-- Loading State -->
+      <div *ngIf="loading" class="loading-state">
+        <div class="loading-spinner"></div>
+        <p>Đang tải danh sách gói vay...</p>
+      </div>
+
+      <!-- Error State -->
+      <div *ngIf="error && !loading" class="error-state">
+        <div class="error-message">
+          <span class="error-icon">⚠️</span>
+          <p>{{error}}</p>
+          <button class="btn btn-primary" (click)="loadLoanPackages()">Thử lại</button>
+        </div>
+      </div>
+
+      <!-- Loan Packages Grid -->
+      <div *ngIf="!loading && !error" class="packages-grid">
+        <div class="package-card" *ngFor="let package of loanPackages; let i = index">
           <div class="package-image">
             <div class="package-icon">
-              <span class="icon-emoji">{{package.icon}}</span>
+              <span class="icon-emoji">{{getPackageIcon(package?.name || '')}}</span>
             </div>
-            <div class="package-status" [class.active]="package.trangThai">
-              {{package.trangThai ? 'Đang mở' : 'Tạm đóng'}}
+            <div class="package-status" [class.active]="getPackageStatus()">
+              {{getPackageStatus() ? 'Đang mở' : 'Tạm đóng'}}
             </div>
           </div>
 
           <div class="package-content">
             <h3 class="package-title">
-              <a [routerLink]="['/goi-vay/chi-tiet', package.maGoiVay]">
-                {{package.tenGoiVay}}
+              <a [routerLink]="['/goi-vay/chi-tiet', package?.id]">
+                {{package?.name || 'Tên gói vay không có'}}
               </a>
             </h3>
-            <p class="package-description">{{package.moTa1}}</p>
+            <p class="package-description">{{package?.description1 || 'Mô tả không có'}}</p>
 
             <div class="package-features">
               <div class="feature-item">
                 <span class="feature-label">Lãi suất từ:</span>
-                <span class="feature-value highlight">{{getInterestRateText(package.laiSuat)}}</span>
+                <span class="feature-value highlight">{{getInterestRateText(package?.baseInterestRate || 0)}}</span>
               </div>
-              <div class="feature-item">
-                <span class="feature-label">Hạn mức:</span>
-                <span class="feature-value">{{formatCurrency(package.hanMuc)}}</span>
+              <div class="feature-item" *ngIf="package?.category">
+                <span class="feature-label">Danh mục:</span>
+                <span class="feature-value">{{package?.category?.name || 'Không có danh mục'}}</span>
               </div>
-              <div class="feature-item">
-                <span class="feature-label">Thời hạn:</span>
-                <span class="feature-value">{{package.thoiHan}}</span>
-              </div>
+              
             </div>
 
             <div class="package-actions">
-              <a [routerLink]="['/goi-vay/chi-tiet', package.maGoiVay]" 
+              <a [routerLink]="['/goi-vay/chi-tiet', package?.id]" 
                  class="btn btn-outline">
                 Xem chi tiết
               </a>
-              <a [routerLink]="['/dang-ky-vay', package.maGoiVay]" 
+              <a [routerLink]="['/dang-ky-vay', package?.id]" 
                  class="btn btn-primary">
                 Đăng ký ngay
               </a>
@@ -72,8 +85,17 @@
         </div>
       </div>
 
+      <!-- Empty State -->
+      <div *ngIf="!loading && !error && loanPackages.length === 0" class="empty-state">
+        <div class="empty-message">
+          <span class="empty-icon">📋</span>
+          <h3>Chưa có gói vay nào</h3>
+          <p>Hiện tại chưa có gói vay nào được đăng tải. Vui lòng quay lại sau.</p>
+        </div>
+      </div>
+
       <!-- Call to Action -->
-      <div class="cta-section">
+      <div *ngIf="!loading && !error && loanPackages.length > 0" class="cta-section">
         <div class="cta-content">
           <h3>Cần tư vấn thêm?</h3>
           <p>Đội ngũ chuyên viên của chúng tôi sẵn sàng hỗ trợ bạn 24/7</p>

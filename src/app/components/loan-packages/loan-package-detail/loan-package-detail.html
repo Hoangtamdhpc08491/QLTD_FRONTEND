@@ -1,7 +1,27 @@
-<<!-- Header -->
+<!-- Header -->
 <app-header></app-header>
 
-<div class="loan-detail-page" *ngIf="loanPackage">
+<!-- Loading State -->
+<div *ngIf="loading" class="loading-state">
+  <div class="container">
+    <div class="loading-spinner"></div>
+    <p>Đang tải thông tin gói vay...</p>
+  </div>
+</div>
+
+<!-- Error State -->
+<div *ngIf="error && !loading" class="error-state">
+  <div class="container">
+    <div class="error-message">
+      <span class="error-icon">⚠️</span>
+      <p>{{error}}</p>
+      <button class="btn btn-primary" (click)="loadLoanPackage()">Thử lại</button>
+    </div>
+  </div>
+</div>
+
+<!-- Main Content -->
+<div class="loan-detail-page" *ngIf="loanPackage && !loading && !error">
   <!-- Page Header -->
   <section class="page-header">
     <div class="page-header-bg"></div>
@@ -11,27 +31,27 @@
         <span class="breadcrumb-separator">/</span>
         <a [routerLink]="'/goi-vay'" class="breadcrumb-item">Gói vay</a>
         <span class="breadcrumb-separator">/</span>
-        <span class="breadcrumb-item active">{{loanPackage.tenGoiVay}}</span>
+        <span class="breadcrumb-item active">{{loanPackage.name}}</span>
       </nav>
       <div class="page-header-content">
         <div class="package-icon-large">
-          <span class="icon-emoji">{{loanPackage.icon}}</span>
+          <span class="icon-emoji">{{getPackageIcon(loanPackage.name)}}</span>
         </div>
         <div class="header-text">
-          <h1 class="page-title">{{loanPackage.tenGoiVay}}</h1>
-          <p class="page-subtitle">{{loanPackage.moTa1}}</p>
+          <h1 class="page-title">{{loanPackage.name}}</h1>
+          <p class="page-subtitle">{{loanPackage.description1}}</p>
           <div class="header-features">
             <div class="feature-badge">
               <span class="feature-label">Lãi suất từ</span>
-              <span class="feature-value">{{getInterestRateText(loanPackage.laiSuat)}}</span>
+              <span class="feature-value">{{getInterestRateText(loanPackage.baseInterestRate)}}</span>
+            </div>
+            <div class="feature-badge" *ngIf="loanPackage.category">
+              <span class="feature-label">Danh mục</span>
+              <span class="feature-value">{{loanPackage.category.name}}</span>
             </div>
             <div class="feature-badge">
-              <span class="feature-label">Hạn mức</span>
-              <span class="feature-value">{{formatCurrency(loanPackage.hanMuc)}}</span>
-            </div>
-            <div class="feature-badge">
-              <span class="feature-label">Thời hạn</span>
-              <span class="feature-value">{{loanPackage.thoiHan}}</span>
+              <span class="feature-label">Ngày tạo</span>
+              <span class="feature-value">{{formatDate(loanPackage.createdAt)}}</span>
             </div>
           </div>
         </div>
@@ -48,14 +68,20 @@
           <!-- Overview -->
           <div class="content-section">
             <h2 class="section-title">Tổng quan gói vay</h2>
-            <p class="section-content">{{loanPackage.moTa2}}</p>
+            <p class="section-content">{{loanPackage.description1}}</p>
+            <div *ngIf="loanPackage.description2" class="section-content">
+              <p>{{loanPackage.description2}}</p>
+            </div>
+            <div *ngIf="loanPackage.description3" class="section-content">
+              <p>{{loanPackage.description3}}</p>
+            </div>
           </div>
 
           <!-- Advantages -->
           <div class="content-section">
             <h2 class="section-title">Ưu điểm nổi bật</h2>
             <div class="advantages-grid">
-              <div class="advantage-item" *ngFor="let advantage of loanPackage.uuDiem">
+              <div class="advantage-item" *ngFor="let advantage of getMockAdvantages()">
                 <div class="advantage-icon">✓</div>
                 <span>{{advantage}}</span>
               </div>
@@ -66,7 +92,7 @@
           <div class="content-section">
             <h2 class="section-title">Quy trình vay vốn</h2>
             <div class="process-steps">
-              <div class="process-step" *ngFor="let step of loanPackage.quyTrinh">
+              <div class="process-step" *ngFor="let step of getMockProcess()">
                 <div class="step-number">{{step.buoc}}</div>
                 <div class="step-icon">{{step.icon}}</div>
                 <div class="step-content">
@@ -81,18 +107,29 @@
           <div class="content-section">
             <h2 class="section-title">Yêu cầu hồ sơ</h2>
             <div class="requirements-list">
-              <div class="requirement-item" *ngFor="let requirement of loanPackage.yeuCauHoSo">
+              <div class="requirement-item" *ngFor="let requirement of getMockRequirements()">
                 <div class="requirement-icon">📄</div>
                 <span>{{requirement}}</span>
               </div>
             </div>
           </div>
 
-          <!-- Terms -->
-          <div class="content-section">
-            <h2 class="section-title">Điều kiện vay</h2>
-            <div class="terms-content">
-              <p>{{loanPackage.dieuKien}}</p>
+          <!-- Interest Rates -->
+          <div class="content-section" *ngIf="loanPackage.interestRate2 || loanPackage.interestRate3">
+            <h2 class="section-title">Bảng lãi suất</h2>
+            <div class="interest-rates-table">
+              <div class="rate-item">
+                <span class="rate-label">Lãi suất cơ bản:</span>
+                <span class="rate-value highlight">{{getInterestRateText(loanPackage.baseInterestRate)}}</span>
+              </div>
+              <div class="rate-item" *ngIf="loanPackage.interestRate2">
+                <span class="rate-label">Lãi suất ưu đãi:</span>
+                <span class="rate-value">{{getInterestRateText(loanPackage.interestRate2)}}</span>
+              </div>
+              <div class="rate-item" *ngIf="loanPackage.interestRate3">
+                <span class="rate-label">Lãi suất đặc biệt:</span>
+                <span class="rate-value">{{getInterestRateText(loanPackage.interestRate3)}}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -105,24 +142,24 @@
             <div class="info-items">
               <div class="info-item">
                 <span class="info-label">Mã gói vay:</span>
-                <span class="info-value">{{loanPackage.maGoiVay}}</span>
+                <span class="info-value">{{loanPackage.id}}</span>
               </div>
               <div class="info-item">
-                <span class="info-label">Lãi suất:</span>
-                <span class="info-value highlight">{{getInterestRateText(loanPackage.laiSuat)}}</span>
+                <span class="info-label">Lãi suất cơ bản:</span>
+                <span class="info-value highlight">{{getInterestRateText(loanPackage.baseInterestRate)}}</span>
+              </div>
+              <div class="info-item" *ngIf="loanPackage.category">
+                <span class="info-label">Danh mục:</span>
+                <span class="info-value">{{loanPackage.category.name}}</span>
               </div>
               <div class="info-item">
-                <span class="info-label">Hạn mức tối đa:</span>
-                <span class="info-value">{{formatCurrency(loanPackage.hanMuc)}}</span>
-              </div>
-              <div class="info-item">
-                <span class="info-label">Thời hạn vay:</span>
-                <span class="info-value">{{loanPackage.thoiHan}}</span>
+                <span class="info-label">Ngày tạo:</span>
+                <span class="info-value">{{formatDate(loanPackage.createdAt)}}</span>
               </div>
               <div class="info-item">
                 <span class="info-label">Trạng thái:</span>
-                <span class="info-value" [class]="loanPackage.trangThai ? 'status-active' : 'status-inactive'">
-                  {{loanPackage.trangThai ? 'Đang mở' : 'Tạm đóng'}}
+                <span class="info-value" [class]="getPackageStatus() ? 'status-active' : 'status-inactive'">
+                  {{getPackageStatus() ? 'Đang mở' : 'Tạm đóng'}}
                 </span>
               </div>
             </div>
@@ -133,7 +170,7 @@
             <h3 class="card-title">Đăng ký ngay</h3>
             <p class="card-subtitle">Bắt đầu quy trình vay vốn với chúng tôi</p>
             <div class="action-buttons">
-              <a [routerLink]="['/dang-ky-vay', loanPackage.maGoiVay]" 
+              <a [routerLink]="['/dang-ky-vay', loanPackage.id]" 
                  class="btn btn-primary btn-full">
                 Đăng ký vay ngay
               </a>
@@ -143,7 +180,6 @@
               </a>
             </div>
           </div>
-
           <!-- Calculator Card -->
           <div class="calculator-card">
             <h3 class="card-title">Tính toán khoản vay</h3>
@@ -151,11 +187,11 @@
             <div class="calculator-info">
               <div class="calc-item">
                 <span class="calc-label">Vay 100 triệu trong 12 tháng:</span>
-                <span class="calc-value">{{calculateMonthlyPayment(100000000, loanPackage.laiSuat, 12)}}/tháng</span>
+                <span class="calc-value">{{calculateMonthlyPayment(100000000, loanPackage.baseInterestRate, 12)}}/tháng</span>
               </div>
               <div class="calc-item">
                 <span class="calc-label">Vay 200 triệu trong 24 tháng:</span>
-                <span class="calc-value">{{calculateMonthlyPayment(200000000, loanPackage.laiSuat, 24)}}/tháng</span>
+                <span class="calc-value">{{calculateMonthlyPayment(200000000, loanPackage.baseInterestRate, 24)}}/tháng</span>
               </div>
             </div>
             <a [routerLink]="'/tinh-lai-suat'" class="btn btn-outline btn-full">
@@ -196,16 +232,6 @@
   </section>
 </div>
 
-<!-- Not Found Message -->
-<div class="not-found" *ngIf="!loanPackage">
-  <div class="container">
-    <div class="not-found-content">
-      <h2>Không tìm thấy gói vay</h2>
-      <p>Gói vay bạn đang tìm kiếm không tồn tại hoặc đã bị xóa.</p>
-      <a [routerLink]="'/goi-vay'" class="btn btn-primary">Quay lại danh sách</a>
-    </div>
-  </div>
-</div>
-
 <!-- Footer -->
+<app-footer></app-footer>
 <app-footer></app-footer>

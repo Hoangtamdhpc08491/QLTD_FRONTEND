@@ -3,29 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute } from '@angular/router';
 import { Footer } from '../../shared/footer/footer';
 import { Header } from '../../shared/header/header';
-
-interface LoanPackage {
-  maGoiVay: string;
-  tenGoiVay: string;
-  moTa1: string;
-  moTa2: string;
-  laiSuat: number;
-  hanMuc: number;
-  thoiHan: string;
-  dieuKien: string;
-  image: string;
-  icon: string;
-  trangThai: boolean;
-  ngayTao: Date;
-  yeuCauHoSo: string[];
-  uuDiem: string[];
-  quyTrinh: {
-    buoc: number;
-    tieuDe: string;
-    moTa: string;
-    icon: string;
-  }[];
-}
+import { LoanPackageService, LoanPackage } from '../../../services/loan-package.service';
 
 @Component({
   selector: 'app-loan-package-detail',
@@ -35,149 +13,43 @@ interface LoanPackage {
 })
 export class LoanPackageDetail implements OnInit {
   loanPackage: LoanPackage | null = null;
-  packageId: string = '';
+  packageId: number = 0;
+  loading = true;
+  error: string | null = null;
 
-  // Mock data
-  private mockLoanPackages: LoanPackage[] = [
-    {
-      maGoiVay: 'VKD001',
-      tenGoiVay: 'Vay Kinh Doanh Online',
-      moTa1: 'Dành cho các doanh nghiệp nhỏ và vừa, thủ tục đơn giản, duyệt nhanh trong 24h',
-      moTa2: 'Gói vay được thiết kế đặc biệt cho các doanh nghiệp muốn mở rộng kinh doanh, bổ sung vốn lưu động hoặc đầu tư trang thiết bị. Với quy trình đơn giản và tốc độ duyệt nhanh, chúng tôi cam kết mang đến giải pháp tài chính tối ưu cho doanh nghiệp của bạn.',
-      laiSuat: 1.2,
-      hanMuc: 500000000,
-      thoiHan: '6-36 tháng',
-      dieuKien: 'Doanh nghiệp hoạt động từ 6 tháng trở lên, có doanh thu ổn định',
-      image: 'business-loan.jpg',
-      icon: '🏢',
-      trangThai: true,
-      ngayTao: new Date('2024-01-15'),
-      yeuCauHoSo: [
-        'Giấy phép kinh doanh hợp lệ',
-        'Báo cáo tài chính 6 tháng gần nhất',
-        'Sao kê tài khoản ngân hàng 3 tháng',
-        'CMND/CCCD người đại diện pháp luật',
-        'Hợp đồng thuê mặt bằng (nếu có)'
-      ],
-      uuDiem: [
-        'Lãi suất cạnh tranh từ 1.2%/tháng',
-        'Hạn mức vay lên đến 500 triệu VNĐ',
-        'Thời gian vay linh hoạt 6-36 tháng',
-        'Duyệt hồ sơ nhanh chóng trong 24h',
-        'Giải ngân ngay sau khi duyệt',
-        'Không cần tài sản đảm bảo',
-        'Tư vấn miễn phí 24/7'
-      ],
-      quyTrinh: [
-        {
-          buoc: 1,
-          tieuDe: 'Đăng ký online',
-          moTa: 'Điền form đăng ký trực tuyến với thông tin cơ bản',
-          icon: '📝'
-        },
-        {
-          buoc: 2,
-          tieuDe: 'Nộp hồ sơ',
-          moTa: 'Upload các giấy tờ cần thiết theo yêu cầu',
-          icon: '📄'
-        },
-        {
-          buoc: 3,
-          tieuDe: 'Thẩm định',
-          moTa: 'Chuyên viên thẩm định hồ sơ trong 24h',
-          icon: '🔍'
-        },
-        {
-          buoc: 4,
-          tieuDe: 'Ký hợp đồng',
-          moTa: 'Ký kết hợp đồng vay và hoàn tất thủ tục',
-          icon: '✍️'
-        },
-        {
-          buoc: 5,
-          tieuDe: 'Giải ngân',
-          moTa: 'Nhận tiền vay chuyển khoản vào tài khoản',
-          icon: '💰'
-        }
-      ]
-    },
-    {
-      maGoiVay: 'VCN002',
-      tenGoiVay: 'Vay Cá Nhân Tiêu Dùng',
-      moTa1: 'Giải pháp tài chính linh hoạt cho mọi nhu cầu cá nhân, lãi suất ưu đãi',
-      moTa2: 'Phù hợp cho việc mua sắm, du lịch, giáo dục, y tế và các nhu cầu tiêu dùng khác của cá nhân và gia đình. Quy trình đơn giản, không cần tài sản đảm bảo.',
-      laiSuat: 1.5,
-      hanMuc: 200000000,
-      thoiHan: '3-24 tháng',
-      dieuKien: 'Có thu nhập ổn định từ 8 triệu/tháng, độ tuổi từ 22-60',
-      image: 'personal-loan.jpg',
-      icon: '👤',
-      trangThai: true,
-      ngayTao: new Date('2024-01-20'),
-      yeuCauHoSo: [
-        'CMND/CCCD hợp lệ',
-        'Giấy xác nhận thu nhập',
-        'Sao kê lương 3 tháng gần nhất',
-        'Hợp đồng lao động',
-        'Hóa đơn điện/nước tại địa chỉ cư trú'
-      ],
-      uuDiem: [
-        'Lãi suất ưu đãi từ 1.5%/tháng',
-        'Hạn mức vay lên đến 200 triệu VNĐ',
-        'Không cần tài sản đảm bảo',
-        'Thủ tục đơn giản, nhanh gọn',
-        'Giải ngân trong ngày',
-        'Trả góp linh hoạt',
-        'Hỗ trợ tư vấn 24/7'
-      ],
-      quyTrinh: [
-        {
-          buoc: 1,
-          tieuDe: 'Đăng ký',
-          moTa: 'Điền thông tin cá nhân và nhu cầu vay',
-          icon: '📱'
-        },
-        {
-          buoc: 2,
-          tieuDe: 'Xác minh',
-          moTa: 'Xác minh thông tin qua điện thoại',
-          icon: '📞'
-        },
-        {
-          buoc: 3,
-          tieuDe: 'Duyệt hồ sơ',
-          moTa: 'Hệ thống tự động duyệt trong 30 phút',
-          icon: '⚡'
-        },
-        {
-          buoc: 4,
-          tieuDe: 'Ký điện tử',
-          moTa: 'Ký hợp đồng bằng chữ ký điện tử',
-          icon: '🖊️'
-        },
-        {
-          buoc: 5,
-          tieuDe: 'Nhận tiền',
-          moTa: 'Tiền vay được chuyển vào tài khoản ngay',
-          icon: '🏦'
-        }
-      ]
-    }
-  ];
-
-  constructor(private route: ActivatedRoute) {}
+  constructor(
+    private route: ActivatedRoute,
+    private loanPackageService: LoanPackageService
+  ) {}
 
   ngOnInit() {
     this.route.params.subscribe(params => {
-      this.packageId = params['id'];
-      this.loadLoanPackage();
+      this.packageId = +params['id'];
+      if (this.packageId) {
+        this.loadLoanPackage();
+      }
     });
   }
 
-  private loadLoanPackage() {
-    this.loanPackage = this.mockLoanPackages.find(
-      pkg => pkg.maGoiVay === this.packageId
-    ) || null;
+  loadLoanPackage() {
+    this.loading = true;
+    this.error = null;
+
+    this.loanPackageService.getLoanPackageById(this.packageId).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.loanPackage = response.data;
+        } else {
+          this.error = response.message;
+        }
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Error loading loan package:', error);
+        this.error = 'Không thể tải thông tin gói vay. Vui lòng thử lại sau.';
+        this.loading = false;
+      }
+    });
   }
 
   formatCurrency(amount: number): string {
@@ -196,5 +68,78 @@ export class LoanPackageDetail implements OnInit {
     const payment = (amount * monthlyRate * Math.pow(1 + monthlyRate, months)) / 
                    (Math.pow(1 + monthlyRate, months) - 1);
     return this.formatCurrency(payment);
+  }
+
+  formatDate(date: string): string {
+    return new Intl.DateTimeFormat('vi-VN').format(new Date(date));
+  }
+
+  // Hàm để lấy icon mặc định cho gói vay dựa trên tên
+  getPackageIcon(packageName: string): string {
+    const name = packageName.toLowerCase();
+    if (name.includes('kinh doanh') || name.includes('doanh nghiệp')) return '🏢';
+    if (name.includes('cá nhân') || name.includes('tiêu dùng')) return '👤';
+    if (name.includes('thế chấp') || name.includes('tài sản')) return '🏠';
+    if (name.includes('nhanh') || name.includes('siêu tốc')) return '⚡';
+    if (name.includes('sinh viên') || name.includes('học phí')) return '🎓';
+    if (name.includes('online') || name.includes('trực tuyến')) return '💻';
+    return '💰'; // icon mặc định
+  }
+
+  // Hàm để tạo status giả (có thể thêm field này vào backend sau)
+  getPackageStatus(): boolean {
+    return true; // Mặc định tất cả gói vay đều đang mở
+  }
+
+  // Tạo mock requirements vì backend chưa có field này
+  getMockRequirements(): string[] {
+    return [
+      'CMND/CCCD hợp lệ',
+      'Sổ hộ khẩu',
+      'Giấy tờ chứng minh thu nhập',
+      'Bảng sao kê ngân hàng 6 tháng gần nhất',
+      'Hợp đồng lao động (nếu có)'
+    ];
+  }
+
+  // Tạo mock advantages vì backend chưa có field này
+  getMockAdvantages(): string[] {
+    return [
+      'Thủ tục đơn giản, nhanh chóng',
+      'Lãi suất cạnh tranh',
+      'Không cần tài sản đảm bảo',
+      'Giải ngân nhanh trong 24h',
+      'Hỗ trợ tư vấn 24/7'
+    ];
+  }
+
+  // Tạo mock process vì backend chưa có field này
+  getMockProcess(): {buoc: number; tieuDe: string; moTa: string; icon: string}[] {
+    return [
+      {
+        buoc: 1,
+        tieuDe: 'Đăng ký online',
+        moTa: 'Điền thông tin và upload hồ sơ trực tuyến',
+        icon: '📝'
+      },
+      {
+        buoc: 2,
+        tieuDe: 'Thẩm định hồ sơ',
+        moTa: 'Chúng tôi sẽ thẩm định và liên hệ xác nhận',
+        icon: '🔍'
+      },
+      {
+        buoc: 3,
+        tieuDe: 'Phê duyệt',
+        moTa: 'Nhận kết quả phê duyệt trong 24h',
+        icon: '✅'
+      },
+      {
+        buoc: 4,
+        tieuDe: 'Giải ngân',
+        moTa: 'Ký hợp đồng và nhận tiền ngay',
+        icon: '💰'
+      }
+    ];
   }
 }
