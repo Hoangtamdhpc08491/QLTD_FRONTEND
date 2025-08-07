@@ -1,298 +1,493 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
-
-interface Category {
-  id: string;
-  tenDanhMuc: string;
-  moTa: string;
-  loaiDanhMuc: string; // 'goi-vay' | 'tin-tuc' | 'ho-tro'
-  thuTuHienThi: number;
-  trangThai: string;
-  ngayTao: Date;
-  ngayCapNhat: Date;
-  nguoiTao: string;
-  soLuongBaiViet: number;
-  icon: string;
-  mauSac: string;
-}
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { CategoryService, Category } from '../../../services/category.service';
 
 @Component({
   selector: 'app-admin-categories',
-  imports: [CommonModule, FormsModule],
-  templateUrl: './admin-categories.html',
-  styleUrl: './admin-categories.css'
+  standalone: true,
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  template: `
+    <div class="admin-categories">
+      <div class="page-header">
+        <h1>Quản lý Danh mục</h1>
+        <button class="btn btn-primary" (click)="openCreateModal()">
+          <i class="fas fa-plus"></i> Thêm danh mục
+        </button>
+      </div>
+
+      <!-- Loading -->
+      <div *ngIf="loading" class="loading">
+        <div class="spinner"></div>
+        <p>Đang tải...</p>
+      </div>
+
+      <!-- Error -->
+      <div *ngIf="error" class="error-message">
+        <p>{{error}}</p>
+        <button class="btn btn-secondary" (click)="loadCategories()">Thử lại</button>
+      </div>
+
+      <!-- Categories Table -->
+      <div *ngIf="!loading && !error" class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Tên danh mục</th>
+              <th>Mô tả</th>
+              <th>Ngày tạo</th>
+              <th>Thao tác</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let category of categories">
+              <td>{{category.id}}</td>
+              <td>{{category.name}}</td>
+              <td>{{category.description || 'Không có mô tả'}}</td>
+              <td>{{formatDate(category.createdAt || '')}}</td>
+              <td>
+                <div class="action-buttons">
+                  <button class="btn btn-sm btn-warning" (click)="openEditModal(category)">
+                    <i class="fas fa-edit"></i> Sửa
+                  </button>
+                  <button class="btn btn-sm btn-danger" (click)="confirmDelete(category)">
+                    <i class="fas fa-trash"></i> Xóa
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div *ngIf="categories.length === 0" class="empty-state">
+          <p>Chưa có danh mục nào</p>
+        </div>
+      </div>
+
+      <!-- Create/Edit Modal -->
+      <div *ngIf="showModal" class="modal-overlay" (click)="closeModal()">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+          <div class="modal-header">
+            <h3>{{isEditMode ? 'Sửa danh mục' : 'Thêm danh mục'}}</h3>
+            <button class="close-btn" (click)="closeModal()">&times;</button>
+          </div>
+          
+          <form [formGroup]="categoryForm" (ngSubmit)="onSubmit()" class="modal-body">
+            <div class="form-group">
+              <label for="name">Tên danh mục *</label>
+              <input 
+                type="text" 
+                id="name" 
+                formControlName="name"
+                class="form-control"
+                [class.error]="categoryForm.get('name')?.invalid && categoryForm.get('name')?.touched"
+              >
+              <div *ngIf="categoryForm.get('name')?.invalid && categoryForm.get('name')?.touched" class="error-text">
+                Tên danh mục là bắt buộc
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="description">Mô tả</label>
+              <textarea 
+                id="description" 
+                formControlName="description"
+                class="form-control"
+                rows="3"
+                placeholder="Mô tả danh mục (tùy chọn)"
+              ></textarea>
+            </div>
+
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" (click)="closeModal()">Hủy</button>
+              <button 
+                type="submit" 
+                class="btn btn-primary"
+                [disabled]="categoryForm.invalid || submitting"
+              >
+                {{submitting ? 'Đang xử lý...' : (isEditMode ? 'Cập nhật' : 'Tạo mới')}}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Delete Confirmation Modal -->
+      <div *ngIf="showDeleteModal" class="modal-overlay" (click)="closeDeleteModal()">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+          <div class="modal-header">
+            <h3>Xác nhận xóa</h3>
+            <button class="close-btn" (click)="closeDeleteModal()">&times;</button>
+          </div>
+          
+          <div class="modal-body">
+            <p>Bạn có chắc chắn muốn xóa danh mục "<strong>{{categoryToDelete?.name}}</strong>"?</p>
+            <p class="warning-text">Hành động này không thể hoàn tác!</p>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="closeDeleteModal()">Hủy</button>
+            <button 
+              type="button" 
+              class="btn btn-danger"
+              [disabled]="deleting"
+              (click)="deleteCategory()"
+            >
+              {{deleting ? 'Đang xóa...' : 'Xóa'}}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `,
+  styles: [`
+    .admin-categories {
+      padding: 20px;
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .page-header h1 {
+      margin: 0;
+      color: #2c3e50;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+      background: #3498db;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #2980b9;
+    }
+
+    .btn-secondary {
+      background: #95a5a6;
+      color: white;
+    }
+
+    .btn-warning {
+      background: #f39c12;
+      color: white;
+    }
+
+    .btn-danger {
+      background: #e74c3c;
+      color: white;
+    }
+
+    .btn-sm {
+      padding: 4px 8px;
+      font-size: 12px;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 50px;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #3498db;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 15px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .error-message {
+      text-align: center;
+      padding: 30px;
+      background: #f8d7da;
+      border: 1px solid #f5c6cb;
+      border-radius: 4px;
+      color: #721c24;
+    }
+
+    .table-container {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .data-table th,
+    .data-table td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .data-table th {
+      background: #f8f9fa;
+      font-weight: 600;
+      color: #2c3e50;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 8px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 50px;
+      color: #7f8c8d;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 8px;
+      min-width: 500px;
+      max-width: 90vw;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 20px 15px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .modal-header h3 {
+      margin: 0;
+      color: #2c3e50;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #7f8c8d;
+    }
+
+    .modal-body {
+      padding: 20px;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 15px 20px 20px;
+      border-top: 1px solid #e0e0e0;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+      color: #2c3e50;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      transition: border-color 0.3s ease;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: #3498db;
+    }
+
+    .form-control.error {
+      border-color: #e74c3c;
+    }
+
+    .error-text {
+      color: #e74c3c;
+      font-size: 12px;
+      margin-top: 5px;
+    }
+
+    .warning-text {
+      color: #e67e22;
+      font-style: italic;
+      margin-top: 10px;
+    }
+  `]
 })
 export class AdminCategories implements OnInit {
+  private categoryService = inject(CategoryService);
+  private fb = inject(FormBuilder);
+
   categories: Category[] = [];
-  filteredCategories: Category[] = [];
+  loading = false;
+  error: string | null = null;
   
   // Modal states
   showModal = false;
   showDeleteModal = false;
-  modalTitle = '';
   isEditMode = false;
+  submitting = false;
+  deleting = false;
+  
+  // Selected items
   selectedCategory: Category | null = null;
   categoryToDelete: Category | null = null;
-
-  // Form data
-  categoryForm: Partial<Category> = {};
   
-  // Filters
-  searchTerm = '';
-  typeFilter = '';
-  statusFilter = '';
-  
-  // Pagination
-  currentPage = 1;
-  itemsPerPage = 10;
-  totalPages = 0;
+  // Form
+  categoryForm: FormGroup;
 
-  // Color options
-  colorOptions = [
-    { value: '#3498db', label: 'Xanh dương' },
-    { value: '#2ecc71', label: 'Xanh lá' },
-    { value: '#e74c3c', label: 'Đỏ' },
-    { value: '#f39c12', label: 'Cam' },
-    { value: '#9b59b6', label: 'Tím' },
-    { value: '#1abc9c', label: 'Xanh ngọc' },
-    { value: '#34495e', label: 'Xám đen' },
-    { value: '#e67e22', label: 'Cam đậm' }
-  ];
-
-  // Icon options
-  iconOptions = [
-    '💰', '🏠', '🚗', '🎓', '💼', '📊', '📋', '📝',
-    '🏛️', '💳', '📈', '🔔', '⚡', '🎯', '📱', '💻'
-  ];
-
-  constructor(private router: Router) {}
+  constructor() {
+    this.categoryForm = this.fb.group({
+      name: ['', [Validators.required, Validators.minLength(2)]],
+      description: ['']
+    });
+  }
 
   ngOnInit() {
     this.loadCategories();
   }
 
-  private loadCategories() {
-    // Mock data - thực tế sẽ gọi API
-    this.categories = [
-      {
-        id: 'CAT001',
-        tenDanhMuc: 'Vay Cá Nhân',
-        moTa: 'Các gói vay dành cho nhu cầu cá nhân',
-        loaiDanhMuc: 'goi-vay',
-        thuTuHienThi: 1,
-        trangThai: 'Hoạt động',
-        ngayTao: new Date('2024-01-15'),
-        ngayCapNhat: new Date('2025-01-20'),
-        nguoiTao: 'Admin01',
-        soLuongBaiViet: 5,
-        icon: '💰',
-        mauSac: '#3498db'
+  loadCategories() {
+    this.loading = true;
+    this.error = null;
+    
+    this.categoryService.getAdminCategories().subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.categories = response.data;
+        } else {
+          this.error = response.message;
+        }
+        this.loading = false;
       },
-      {
-        id: 'CAT002',
-        tenDanhMuc: 'Vay Bất Động Sản',
-        moTa: 'Các gói vay mua nhà, đất',
-        loaiDanhMuc: 'goi-vay',
-        thuTuHienThi: 2,
-        trangThai: 'Hoạt động',
-        ngayCapNhat: new Date('2025-01-18'),
-        ngayTao: new Date('2024-02-01'),
-        nguoiTao: 'Admin02',
-        soLuongBaiViet: 3,
-        icon: '🏠',
-        mauSac: '#2ecc71'
-      },
-      {
-        id: 'CAT003',
-        tenDanhMuc: 'Vay Kinh Doanh',
-        moTa: 'Các gói vay dành cho doanh nghiệp',
-        loaiDanhMuc: 'goi-vay',
-        thuTuHienThi: 3,
-        trangThai: 'Hoạt động',
-        ngayTao: new Date('2024-02-15'),
-        ngayCapNhat: new Date('2025-01-15'),
-        nguoiTao: 'Admin01',
-        soLuongBaiViet: 4,
-        icon: '💼',
-        mauSac: '#e74c3c'
-      },
-      {
-        id: 'CAT004',
-        tenDanhMuc: 'Tin Tức Ngân Hàng',
-        moTa: 'Tin tức và cập nhật từ ngành ngân hàng',
-        loaiDanhMuc: 'tin-tuc',
-        thuTuHienThi: 1,
-        trangThai: 'Hoạt động',
-        ngayTao: new Date('2024-03-01'),
-        ngayCapNhat: new Date('2025-01-12'),
-        nguoiTao: 'Admin03',
-        soLuongBaiViet: 12,
-        icon: '📊',
-        mauSac: '#f39c12'
-      },
-      {
-        id: 'CAT005',
-        tenDanhMuc: 'Hướng Dẫn Vay Vốn',
-        moTa: 'Các bài viết hướng dẫn về vay vốn',
-        loaiDanhMuc: 'tin-tuc',
-        thuTuHienThi: 2,
-        trangThai: 'Hoạt động',
-        ngayTao: new Date('2024-03-15'),
-        ngayCapNhat: new Date('2025-01-10'),
-        nguoiTao: 'Admin02',
-        soLuongBaiViet: 8,
-        icon: '📝',
-        mauSac: '#9b59b6'
-      },
-      {
-        id: 'CAT006',
-        tenDanhMuc: 'Chính Sách & Quy Định',
-        moTa: 'Thông tin về chính sách và quy định',
-        loaiDanhMuc: 'tin-tuc',
-        thuTuHienThi: 3,
-        trangThai: 'Hoạt động',
-        ngayTao: new Date('2024-04-01'),
-        ngayCapNhat: new Date('2025-01-08'),
-        nguoiTao: 'Admin01',
-        soLuongBaiViet: 6,
-        icon: '📋',
-        mauSac: '#1abc9c'
-      },
-      {
-        id: 'CAT007',
-        tenDanhMuc: 'Hỗ Trợ Kỹ Thuật',
-        moTa: 'Hướng dẫn sử dụng hệ thống',
-        loaiDanhMuc: 'ho-tro',
-        thuTuHienThi: 1,
-        trangThai: 'Hoạt động',
-        ngayTao: new Date('2024-04-15'),
-        ngayCapNhat: new Date('2025-01-05'),
-        nguoiTao: 'Admin03',
-        soLuongBaiViet: 4,
-        icon: '💻',
-        mauSac: '#34495e'
-      },
-      {
-        id: 'CAT008',
-        tenDanhMuc: 'FAQ',
-        moTa: 'Câu hỏi thường gặp',
-        loaiDanhMuc: 'ho-tro',
-        thuTuHienThi: 2,
-        trangThai: 'Tạm dừng',
-        ngayTao: new Date('2024-05-01'),
-        ngayCapNhat: new Date('2025-01-03'),
-        nguoiTao: 'Admin02',
-        soLuongBaiViet: 15,
-        icon: '❓',
-        mauSac: '#e67e22'
+      error: (error) => {
+        console.error('Error loading categories:', error);
+        this.error = 'Không thể tải danh sách danh mục';
+        this.loading = false;
       }
-    ];
-
-    this.applyFilters();
-  }
-
-  applyFilters() {
-    this.filteredCategories = this.categories.filter(cat => {
-      const matchesSearch = !this.searchTerm || 
-        cat.tenDanhMuc.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        cat.moTa.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        cat.id.toLowerCase().includes(this.searchTerm.toLowerCase());
-      
-      const matchesType = !this.typeFilter || cat.loaiDanhMuc === this.typeFilter;
-      const matchesStatus = !this.statusFilter || cat.trangThai === this.statusFilter;
-      
-      return matchesSearch && matchesType && matchesStatus;
     });
-
-    // Sort by type first, then by display order
-    this.filteredCategories.sort((a, b) => {
-      if (a.loaiDanhMuc !== b.loaiDanhMuc) {
-        return a.loaiDanhMuc.localeCompare(b.loaiDanhMuc);
-      }
-      return a.thuTuHienThi - b.thuTuHienThi;
-    });
-
-    this.totalPages = Math.ceil(this.filteredCategories.length / this.itemsPerPage);
-    this.currentPage = 1;
   }
 
-  getPaginatedCategories(): Category[] {
-    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    const endIndex = startIndex + this.itemsPerPage;
-    return this.filteredCategories.slice(startIndex, endIndex);
-  }
-
-  getMaxItemDisplay(): number {
-    return Math.min(this.currentPage * this.itemsPerPage, this.filteredCategories.length);
-  }
-
-  goToPage(page: number) {
-    if (page >= 1 && page <= this.totalPages) {
-      this.currentPage = page;
-    }
-  }
-
-  // CRUD Operations
   openCreateModal() {
     this.isEditMode = false;
-    this.modalTitle = 'Thêm Danh Mục Mới';
-    this.categoryForm = {
-      trangThai: 'Hoạt động',
-      thuTuHienThi: this.categories.length + 1,
-      icon: '📝',
-      mauSac: '#3498db',
-      loaiDanhMuc: 'tin-tuc'
-    };
+    this.selectedCategory = null;
+    this.categoryForm.reset();
     this.showModal = true;
   }
 
-  openEditModal(cat: Category) {
+  openEditModal(category: Category) {
     this.isEditMode = true;
-    this.modalTitle = 'Chỉnh Sửa Danh Mục';
-    this.selectedCategory = cat;
-    this.categoryForm = { ...cat };
+    this.selectedCategory = category;
+    this.categoryForm.patchValue({
+      name: category.name,
+      description: category.description || ''
+    });
     this.showModal = true;
   }
 
   closeModal() {
     this.showModal = false;
     this.selectedCategory = null;
-    this.categoryForm = {};
+    this.categoryForm.reset();
   }
 
-  saveCategory() {
+  onSubmit() {
+    if (this.categoryForm.invalid) return;
+
+    this.submitting = true;
+    const formData = this.categoryForm.value;
+
     if (this.isEditMode && this.selectedCategory) {
       // Update existing category
-      const index = this.categories.findIndex(c => c.id === this.selectedCategory!.id);
-      if (index !== -1) {
-        this.categories[index] = {
-          ...this.categories[index],
-          ...this.categoryForm as Category,
-          ngayCapNhat: new Date()
-        };
-      }
+      this.categoryService.updateCategory(this.selectedCategory.id, formData).subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.loadCategories();
+            this.closeModal();
+          } else {
+            this.error = response.message;
+          }
+          this.submitting = false;
+        },
+        error: (error) => {
+          console.error('Error updating category:', error);
+          this.error = 'Không thể cập nhật danh mục';
+          this.submitting = false;
+        }
+      });
     } else {
       // Create new category
-      const newId = 'CAT' + String(this.categories.length + 1).padStart(3, '0');
-      const newCategory: Category = {
-        ...this.categoryForm as Category,
-        id: newId,
-        ngayTao: new Date(),
-        ngayCapNhat: new Date(),
-        nguoiTao: 'Current Admin',
-        soLuongBaiViet: 0
-      };
-      this.categories.push(newCategory);
+      this.categoryService.createCategory(formData).subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.loadCategories();
+            this.closeModal();
+          } else {
+            this.error = response.message;
+          }
+          this.submitting = false;
+        },
+        error: (error) => {
+          console.error('Error creating category:', error);
+          this.error = 'Không thể tạo danh mục';
+          this.submitting = false;
+        }
+      });
     }
-
-    this.applyFilters();
-    this.closeModal();
   }
 
-  openDeleteModal(cat: Category) {
-    this.categoryToDelete = cat;
+  confirmDelete(category: Category) {
+    this.categoryToDelete = category;
     this.showDeleteModal = true;
   }
 
@@ -301,89 +496,35 @@ export class AdminCategories implements OnInit {
     this.categoryToDelete = null;
   }
 
-  confirmDelete() {
-    if (this.categoryToDelete) {
-      this.categories = this.categories.filter(c => c.id !== this.categoryToDelete!.id);
-      this.applyFilters();
-      this.closeDeleteModal();
-    }
-  }
+  deleteCategory() {
+    if (!this.categoryToDelete) return;
 
-  // Utility methods
-  getTypeLabel(type: string): string {
-    switch (type) {
-      case 'goi-vay': return 'Gói Vay';
-      case 'tin-tuc': return 'Tin Tức';
-      case 'ho-tro': return 'Hỗ Trợ';
-      default: return type;
-    }
-  }
-
-  getTypeClass(type: string): string {
-    switch (type) {
-      case 'goi-vay': return 'type-loan';
-      case 'tin-tuc': return 'type-news';
-      case 'ho-tro': return 'type-support';
-      default: return '';
-    }
-  }
-
-  getStatusClass(status: string): string {
-    switch (status) {
-      case 'Hoạt động': return 'status-active';
-      case 'Tạm dừng': return 'status-inactive';
-      case 'Ngừng hoạt động': return 'status-disabled';
-      default: return '';
-    }
-  }
-
-  toggleStatus(cat: Category) {
-    if (cat.trangThai === 'Hoạt động') {
-      cat.trangThai = 'Tạm dừng';
-    } else if (cat.trangThai === 'Tạm dừng') {
-      cat.trangThai = 'Hoạt động';
-    }
-    cat.ngayCapNhat = new Date();
-    this.applyFilters();
-  }
-
-  reorderCategory(cat: Category, direction: 'up' | 'down') {
-    const sameTypeCategories = this.categories.filter(c => 
-      c.loaiDanhMuc === cat.loaiDanhMuc && c.id !== cat.id
-    );
+    this.deleting = true;
     
-    if (direction === 'up' && cat.thuTuHienThi > 1) {
-      const previousCat = sameTypeCategories.find(c => 
-        c.thuTuHienThi === cat.thuTuHienThi - 1
-      );
-      if (previousCat) {
-        previousCat.thuTuHienThi = cat.thuTuHienThi;
-        cat.thuTuHienThi = cat.thuTuHienThi - 1;
+    this.categoryService.deleteCategory(this.categoryToDelete.id).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.loadCategories();
+          this.closeDeleteModal();
+        } else {
+          this.error = response.message;
+        }
+        this.deleting = false;
+      },
+      error: (error) => {
+        console.error('Error deleting category:', error);
+        this.error = 'Không thể xóa danh mục';
+        this.deleting = false;
       }
-    } else if (direction === 'down') {
-      const nextCat = sameTypeCategories.find(c => 
-        c.thuTuHienThi === cat.thuTuHienThi + 1
-      );
-      if (nextCat) {
-        nextCat.thuTuHienThi = cat.thuTuHienThi;
-        cat.thuTuHienThi = cat.thuTuHienThi + 1;
-      }
-    }
-    
-    this.applyFilters();
+    });
   }
 
-  viewContent(categoryId: string, type: string) {
-    if (type === 'goi-vay') {
-      this.router.navigate(['/admin/loan-packages'], { queryParams: { categoryId } });
-    } else if (type === 'tin-tuc') {
-      // Navigate to news management (to be implemented)
-      console.log('Navigate to news management for category:', categoryId);
+  formatDate(date: string): string {
+    if (!date) return 'N/A';
+    try {
+      return new Intl.DateTimeFormat('vi-VN').format(new Date(date));
+    } catch {
+      return 'N/A';
     }
-  }
-
-  exportToExcel() {
-    console.log('Export categories to Excel functionality');
-    // Thực tế sẽ implement export Excel
   }
 }

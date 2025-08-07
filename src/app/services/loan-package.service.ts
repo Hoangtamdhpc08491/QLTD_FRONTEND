@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
@@ -30,26 +30,70 @@ export interface ApiResponse<T> {
   data: T;
 }
 
+export interface CreateLoanPackageRequest {
+  name: string;
+  baseInterestRate: number;
+  interestRate2?: number;
+  interestRate3?: number;
+  description1: string;
+  description2?: string;
+  description3?: string;
+  description4?: string;
+  description5?: string;
+  description6?: string;
+  image?: string;
+  categoryId?: number;
+}
+
+export interface UpdateLoanPackageRequest {
+  name?: string;
+  baseInterestRate?: number;
+  interestRate2?: number;
+  interestRate3?: number;
+  description1?: string;
+  description2?: string;
+  description3?: string;
+  description4?: string;
+  description5?: string;
+  description6?: string;
+  image?: string;
+  categoryId?: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class LoanPackageService {
-  private apiUrl = 'http://localhost:3000/api/client/loan-packages';
+  private apiUrl = 'http://localhost:3000/api';
+  private http = inject(HttpClient);
 
-  constructor(private http: HttpClient) {}
-
-  // Lấy tất cả loan packages công khai
+  // Public endpoints
   getAllLoanPackages(): Observable<ApiResponse<LoanPackage[]>> {
-    return this.http.get<ApiResponse<LoanPackage[]>>(this.apiUrl);
+    return this.http.get<ApiResponse<LoanPackage[]>>(`${this.apiUrl}/client/loan-packages`);
   }
 
-  // Lấy loan package theo ID
   getLoanPackageById(id: number): Observable<ApiResponse<LoanPackage>> {
-    return this.http.get<ApiResponse<LoanPackage>>(`${this.apiUrl}/${id}`);
+    return this.http.get<ApiResponse<LoanPackage>>(`${this.apiUrl}/client/loan-packages/${id}`);
   }
 
-  // Lấy loan packages theo category
   getLoanPackagesByCategory(categoryId: number): Observable<ApiResponse<LoanPackage[]>> {
-    return this.http.get<ApiResponse<LoanPackage[]>>(`${this.apiUrl}/category/${categoryId}`);
+    return this.http.get<ApiResponse<LoanPackage[]>>(`${this.apiUrl}/client/loan-packages/category/${categoryId}`);
+  }
+
+  // Admin endpoints
+  getAdminLoanPackages(): Observable<ApiResponse<LoanPackage[]>> {
+    return this.http.get<ApiResponse<LoanPackage[]>>(`${this.apiUrl}/admin/loan-packages`);
+  }
+
+  createLoanPackage(packageData: CreateLoanPackageRequest): Observable<ApiResponse<LoanPackage>> {
+    return this.http.post<ApiResponse<LoanPackage>>(`${this.apiUrl}/admin/loan-packages/create`, packageData);
+  }
+
+  updateLoanPackage(id: number, packageData: UpdateLoanPackageRequest): Observable<ApiResponse<LoanPackage>> {
+    return this.http.put<ApiResponse<LoanPackage>>(`${this.apiUrl}/admin/loan-packages/update/${id}`, packageData);
+  }
+
+  deleteLoanPackage(id: number): Observable<ApiResponse<{message: string}>> {
+    return this.http.delete<ApiResponse<{message: string}>>(`${this.apiUrl}/admin/loan-packages/delete/${id}`);
   }
 }

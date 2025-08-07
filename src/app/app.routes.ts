@@ -16,6 +16,7 @@ import { Register } from './components/auth/register/register';
 import { Profile } from './components/auth/profile/profile';
 import { ChangePassword } from './components/auth/change-password/change-password';
 import { authGuard } from './guards/auth.guard';
+import { adminGuard } from './guards/admin.guard';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -36,6 +37,7 @@ export const routes: Routes = [
   {
     path: 'admin',
     component: AdminLayout,
+    canActivate: [adminGuard],
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: AdminDashboard },
