@@ -18,28 +18,21 @@
       <input type="text" 
              [(ngModel)]="searchTerm" 
              (ngModelChange)="applyFilters()"
-             placeholder="Tìm kiếm theo tên, email, SĐT..."
+             placeholder="Tìm kiếm theo tên, email, username, SĐT..."
              class="search-input">
       <span class="search-icon">🔍</span>
     </div>
 
     <div class="filter-controls">
-      <select [(ngModel)]="statusFilter" 
-              (ngModelChange)="applyFilters()"
-              class="filter-select">
-        <option value="">Tất cả trạng thái</option>
-        <option value="Hoạt động">Hoạt động</option>
-        <option value="Tạm khóa">Tạm khóa</option>
-      </select>
-
       <select [(ngModel)]="creditRatingFilter" 
               (ngModelChange)="applyFilters()"
               class="filter-select">
         <option value="">Tất cả đánh giá</option>
-        <option value="Xuất sắc">Xuất sắc</option>
-        <option value="Tốt">Tốt</option>
-        <option value="Trung bình">Trung bình</option>
-        <option value="Mới">Mới</option>
+        <option value="excellent">Xuất sắc</option>
+        <option value="good">Tốt</option>
+        <option value="average">Trung bình</option>
+        <option value="poor">Kém</option>
+        <option value="unknown">Chưa xác định</option>
       </select>
     </div>
   </div>
@@ -51,16 +44,29 @@
 
   <!-- Users Table -->
   <div class="users-table-container">
-    <table class="users-table">
+    <!-- Loading state -->
+    <div class="loading-state" *ngIf="isLoading">
+      <div class="loading-spinner">⏳</div>
+      <p>Đang tải dữ liệu...</p>
+    </div>
+
+    <!-- Error state -->
+    <div class="error-state" *ngIf="error && !isLoading">
+      <div class="error-icon">❌</div>
+      <h3>Có lỗi xảy ra</h3>
+      <p>{{error}}</p>
+      <button class="btn btn-primary" (click)="loadUsers()">Thử lại</button>
+    </div>
+
+    <table class="users-table" *ngIf="!isLoading && !error">
       <thead>
         <tr>
-          <th>Mã KH</th>
+          <th>ID</th>
           <th>Thông tin cá nhân</th>
           <th>Liên hệ</th>
-          <th>Nghề nghiệp</th>
-          <th>Lịch sử vay</th>
           <th>Đánh giá tín dụng</th>
-          <th>Trạng thái</th>
+          <th>Vai trò</th>
+          <th>Ngày tạo</th>
           <th>Thao tác</th>
         </tr>
       </thead>
@@ -68,60 +74,37 @@
         <tr *ngFor="let user of getPaginatedUsers()" class="user-row">
           <td class="user-id">
             <strong>{{user.id}}</strong>
-            <div class="register-date">
-              <small>{{user.ngayDangKy | date:'dd/MM/yyyy'}}</small>
-            </div>
           </td>
           
           <td class="user-info">
             <div class="user-details">
-              <div class="user-name">{{user.hoTen}}</div>
-              <div class="user-personal">
-                <small>{{user.gioiTinh}} • {{user.tinhTrangHonNhan}}</small><br>
-                <small>SN: {{user.ngaySinh | date:'dd/MM/yyyy'}}</small>
-              </div>
+              <div class="user-name">{{user.name}}</div>
+              <div class="username">&#64;{{user.username}}</div>
             </div>
           </td>
 
           <td class="contact-info">
             <div class="contact-details">
               <div class="email">{{user.email}}</div>
-              <div class="phone">{{user.soDienThoai}}</div>
-              <small class="address">{{user.diaChi}}</small>
-            </div>
-          </td>
-
-          <td class="job-info">
-            <div class="job-details">
-              <div class="occupation">{{user.ngheNghiep}}</div>
-              <div class="income">{{formatCurrency(user.thuNhapHangThang)}}</div>
-            </div>
-          </td>
-
-          <td class="loan-history">
-            <div class="loan-stats">
-              <div class="loan-count">{{user.soLanVay}} lần vay</div>
-              <div class="loan-amount">{{formatCurrency(user.tongTienDaVay)}}</div>
-              <button class="btn btn-xs btn-link" 
-                      *ngIf="user.soLanVay > 0"
-                      (click)="viewUserApplications(user.id)">
-                Xem chi tiết
-              </button>
+              <div class="phone">{{user.phone}}</div>
             </div>
           </td>
 
           <td class="credit-rating">
-            <span class="credit-badge" [class]="getCreditRatingClass(user.danhGiaTinDung)">
-              {{user.danhGiaTinDung}}
+            <span class="credit-badge" [class]="getCreditRatingClass(user.creditRating)">
+              {{getCreditRatingText(user.creditRating)}}
             </span>
           </td>
 
-          <td class="status-cell">
-            <span class="status-badge" [class]="getStatusClass(user.trangThai)">
-              {{user.trangThai}}
+          <td class="role-cell">
+            <span class="role-badge" [class]="user.role === 'admin' ? 'role-admin' : 'role-user'">
+              {{getRoleText(user.role)}}
             </span>
-            <div class="last-login" *ngIf="user.lanDangNhapCuoi">
-              <small>{{user.lanDangNhapCuoi | date:'dd/MM/yyyy'}}</small>
+          </td>
+
+          <td class="date-cell">
+            <div class="created-date">
+              {{formatDate(user.createdAt)}}
             </div>
           </td>
 
@@ -133,14 +116,8 @@
               <button class="btn btn-xs btn-primary" (click)="editUser(user)">
                 ✏️ Sửa
               </button>
-              <button class="btn btn-xs" 
-                      [class]="user.trangThai === 'Hoạt động' ? 'btn-warning' : 'btn-success'"
-                      (click)="toggleUserStatus(user)">
-                <span *ngIf="user.trangThai === 'Hoạt động'">🔒</span>
-                <span *ngIf="user.trangThai !== 'Hoạt động'">🔓</span>
-              </button>
               <button class="btn btn-xs btn-danger" (click)="deleteUser(user)">
-                🗑️
+                🗑️ Xóa
               </button>
             </div>
           </td>
@@ -149,7 +126,7 @@
     </table>
 
     <!-- Empty state -->
-    <div class="empty-state" *ngIf="getPaginatedUsers().length === 0">
+    <div class="empty-state" *ngIf="!isLoading && !error && getPaginatedUsers().length === 0">
       <div class="empty-icon">👥</div>
       <h3>Không tìm thấy người dùng nào</h3>
       <p>Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm</p>
@@ -192,12 +169,23 @@
       <form class="user-form">
         <div class="form-grid">
           <div class="form-group">
+            <label>Tên người dùng</label>
+            <input type="text" 
+                   [(ngModel)]="selectedUser.username" 
+                   name="username"
+                   [readonly]="modalMode === 'view'"
+                   class="form-control"
+                   placeholder="Nhập tên đăng nhập">
+          </div>
+
+          <div class="form-group">
             <label>Họ và tên</label>
             <input type="text" 
-                   [(ngModel)]="selectedUser.hoTen" 
-                   name="hoTen"
+                   [(ngModel)]="selectedUser.name" 
+                   name="name"
                    [readonly]="modalMode === 'view'"
-                   class="form-control">
+                   class="form-control"
+                   placeholder="Nhập họ và tên">
           </div>
 
           <div class="form-group">
@@ -206,118 +194,70 @@
                    [(ngModel)]="selectedUser.email" 
                    name="email"
                    [readonly]="modalMode === 'view'"
-                   class="form-control">
+                   class="form-control"
+                   placeholder="Nhập địa chỉ email">
           </div>
 
           <div class="form-group">
             <label>Số điện thoại</label>
             <input type="tel" 
-                   [(ngModel)]="selectedUser.soDienThoai" 
-                   name="soDienThoai"
+                   [(ngModel)]="selectedUser.phone" 
+                   name="phone"
                    [readonly]="modalMode === 'view'"
-                   class="form-control">
+                   class="form-control"
+                   placeholder="Nhập số điện thoại">
+          </div>
+
+          <div class="form-group" *ngIf="modalMode === 'create'">
+            <label>Mật khẩu</label>
+            <input type="password" 
+                   [(ngModel)]="selectedUser.password" 
+                   name="password"
+                   class="form-control"
+                   placeholder="Nhập mật khẩu">
           </div>
 
           <div class="form-group">
-            <label>CMND/CCCD</label>
-            <input type="text" 
-                   [(ngModel)]="selectedUser.cmnd" 
-                   name="cmnd"
-                   [readonly]="modalMode === 'view'"
-                   class="form-control">
-          </div>
-
-          <div class="form-group full-width">
-            <label>Địa chỉ</label>
-            <input type="text" 
-                   [(ngModel)]="selectedUser.diaChi" 
-                   name="diaChi"
-                   [readonly]="modalMode === 'view'"
-                   class="form-control">
-          </div>
-
-          <div class="form-group">
-            <label>Ngày sinh</label>
-            <input type="date" 
-                   [value]="selectedUser.ngaySinh | date:'yyyy-MM-dd'"
-                   (input)="updateBirthDate($event)"
-                   [readonly]="modalMode === 'view'"
-                   class="form-control">
-          </div>
-
-          <div class="form-group">
-            <label>Giới tính</label>
-            <select [(ngModel)]="selectedUser.gioiTinh" 
-                    name="gioiTinh"
+            <label>Vai trò</label>
+            <select [(ngModel)]="selectedUser.role" 
+                    name="role"
                     [disabled]="modalMode === 'view'"
                     class="form-control">
-              <option value="Nam">Nam</option>
-              <option value="Nữ">Nữ</option>
+              <option value="user">Người dùng</option>
+              <option value="admin">Quản trị viên</option>
             </select>
           </div>
 
           <div class="form-group">
-            <label>Nghề nghiệp</label>
-            <input type="text" 
-                   [(ngModel)]="selectedUser.ngheNghiep" 
-                   name="ngheNghiep"
-                   [readonly]="modalMode === 'view'"
-                   class="form-control">
-          </div>
-
-          <div class="form-group">
-            <label>Thu nhập hàng tháng</label>
-            <input type="number" 
-                   [(ngModel)]="selectedUser.thuNhapHangThang" 
-                   name="thuNhapHangThang"
-                   [readonly]="modalMode === 'view'"
-                   class="form-control">
-          </div>
-
-          <div class="form-group" *ngIf="modalMode !== 'create'">
-            <label>Trạng thái</label>
-            <select [(ngModel)]="selectedUser.trangThai" 
-                    name="trangThai"
-                    [disabled]="modalMode === 'view'"
-                    class="form-control">
-              <option value="Hoạt động">Hoạt động</option>
-              <option value="Tạm khóa">Tạm khóa</option>
-            </select>
-          </div>
-
-          <div class="form-group" *ngIf="modalMode !== 'create'">
             <label>Đánh giá tín dụng</label>
-            <select [(ngModel)]="selectedUser.danhGiaTinDung" 
-                    name="danhGiaTinDung"
+            <select [(ngModel)]="selectedUser.creditRating" 
+                    name="creditRating"
                     [disabled]="modalMode === 'view'"
                     class="form-control">
-              <option value="Mới">Mới</option>
-              <option value="Trung bình">Trung bình</option>
-              <option value="Tốt">Tốt</option>
-              <option value="Xuất sắc">Xuất sắc</option>
+              <option value="unknown">Chưa xác định</option>
+              <option value="poor">Kém</option>
+              <option value="average">Trung bình</option>
+              <option value="good">Tốt</option>
+              <option value="excellent">Xuất sắc</option>
             </select>
           </div>
         </div>
 
-        <!-- Statistics for existing users -->
-        <div class="user-stats" *ngIf="modalMode !== 'create'">
-          <h3>Thống kê</h3>
-          <div class="stats-grid">
-            <div class="stat-item">
-              <span class="stat-label">Ngày đăng ký:</span>
-              <span class="stat-value">{{selectedUser.ngayDangKy | date:'dd/MM/yyyy'}}</span>
+        <!-- Information for existing users -->
+        <div class="user-info-section" *ngIf="modalMode !== 'create'">
+          <h3>Thông tin hệ thống</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">ID:</span>
+              <span class="info-value">{{selectedUser.id}}</span>
             </div>
-            <div class="stat-item">
-              <span class="stat-label">Lần đăng nhập cuối:</span>
-              <span class="stat-value">{{selectedUser.lanDangNhapCuoi | date:'dd/MM/yyyy'}}</span>
+            <div class="info-item">
+              <span class="info-label">Ngày tạo:</span>
+              <span class="info-value">{{formatDate(selectedUser.createdAt)}}</span>
             </div>
-            <div class="stat-item">
-              <span class="stat-label">Số lần vay:</span>
-              <span class="stat-value">{{selectedUser.soLanVay}} lần</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-label">Tổng tiền đã vay:</span>
-              <span class="stat-value">{{formatCurrency(selectedUser.tongTienDaVay)}}</span>
+            <div class="info-item">
+              <span class="info-label">Cập nhật lần cuối:</span>
+              <span class="info-value">{{formatDate(selectedUser.updatedAt)}}</span>
             </div>
           </div>
         </div>

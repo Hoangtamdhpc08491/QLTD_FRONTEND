@@ -31,6 +31,18 @@ export class AdminLayout {
         active: false
     },
     {
+      icon: '📰',
+      label: 'Quản lý tin tức',
+      route: '/admin/news',
+      active: false
+    },
+    {
+      icon: '📂',
+      label: 'Quản lý danh mục tin tức',
+      route: '/admin/news-categories',
+      active: false
+    },
+    {
       icon: '📋',
       label: 'Quản lý đơn vay',
       route: '/admin/loan-applications',

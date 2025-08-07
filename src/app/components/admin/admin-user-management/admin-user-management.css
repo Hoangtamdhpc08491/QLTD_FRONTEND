@@ -85,6 +85,47 @@
   box-shadow: 0 4px 20px rgba(0,0,0,0.1);
   overflow: hidden;
   margin-bottom: 2rem;
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Loading and Error States */
+.loading-state,
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  text-align: center;
+  flex: 1;
+}
+
+.loading-spinner {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.error-state h3 {
+  color: #dc3545;
+  margin-bottom: 0.5rem;
+}
+
+.error-state p {
+  color: #6c757d;
+  margin-bottom: 1rem;
 }
 
 .users-table {
@@ -117,21 +158,16 @@
   font-family: monospace;
 }
 
-.register-date {
-  color: #6c757d;
-  font-size: 0.75rem;
-  margin-top: 0.25rem;
-}
-
 .user-info .user-name {
   font-weight: 600;
   color: #2c3e50;
   margin-bottom: 0.25rem;
 }
 
-.user-info .user-personal {
+.user-info .username {
   color: #6c757d;
   font-size: 0.85rem;
+  font-family: monospace;
 }
 
 .contact-info .email {
@@ -146,15 +182,27 @@
   margin-bottom: 0.25rem;
 }
 
-.contact-info .address {
-  color: #6c757d;
+.role-cell .role-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
   font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
 }
 
-.job-info .occupation {
-  font-weight: 600;
-  color: #2c3e50;
-  margin-bottom: 0.25rem;
+.role-admin {
+  background: #e74c3c;
+  color: white;
+}
+
+.role-user {
+  background: #3498db;
+  color: white;
+}
+
+.date-cell {
+  color: #6c757d;
+  font-size: 0.9rem;
 }
 
 .job-info .income {
@@ -386,39 +434,44 @@
   color: #6c757d;
 }
 
-/* User Stats */
-.user-stats {
+/* User Stats and Info */
+.user-stats,
+.user-info-section {
   border-top: 1px solid #dee2e6;
   padding-top: 2rem;
 }
 
-.user-stats h3 {
+.user-stats h3,
+.user-info-section h3 {
   color: #2c3e50;
   margin-bottom: 1rem;
 }
 
-.stats-grid {
+.stats-grid,
+.info-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
 }
 
-.stat-item {
+.stat-item,
+.info-item {
   display: flex;
   justify-content: space-between;
-  padding: 0.75rem;
-  background: #f8f9fa;
-  border-radius: 8px;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f8f9fa;
 }
 
-.stat-label {
-  color: #6c757d;
-  font-weight: 500;
-}
-
-.stat-value {
-  color: #2c3e50;
+.stat-label,
+.info-label {
   font-weight: 600;
+  color: #6c757d;
+}
+
+.stat-value,
+.info-value {
+  font-weight: 500;
+  color: #2c3e50;
 }
 
 .modal-footer {

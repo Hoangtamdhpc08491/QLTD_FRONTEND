@@ -1,27 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-
-interface User {
-  id: string;
-  hoTen: string;
-  email: string;
-  soDienThoai: string;
-  cmnd: string;
-  diaChi: string;
-  ngaySinh: Date;
-  gioiTinh: string;
-  tinhTrangHonNhan: string;
-  ngheNghiep: string;
-  thuNhapHangThang: number;
-  trangThai: string;
-  ngayDangKy: Date;
-  lanDangNhapCuoi?: Date;
-  soLanVay: number;
-  tongTienDaVay: number;
-  danhGiaTinDung: string;
-}
+import { UserService, User, CreateUserRequest, UpdateUserRequest } from '../../../services/user.service';
 
 @Component({
   selector: 'app-admin-user-management',
@@ -48,146 +29,50 @@ export class AdminUserManagement implements OnInit {
   selectedUser: User | null = null;
   modalMode: 'view' | 'edit' | 'create' = 'view';
 
-  constructor(private router: Router) {}
+  // Loading states
+  isLoading = false;
+  error: string | null = null;
+
+  private router = inject(Router);
+  private userService = inject(UserService);
 
   ngOnInit() {
     this.loadUsers();
   }
 
-  private loadUsers() {
-    // Mock data - thực tế sẽ gọi API
-    this.users = [
-      {
-        id: 'USER001',
-        hoTen: 'Nguyễn Văn A',
-        email: 'nguyenvana@email.com',
-        soDienThoai: '0123456789',
-        cmnd: '123456789012',
-        diaChi: '123 Đường ABC, Quận 1, TP.HCM',
-        ngaySinh: new Date('1990-05-15'),
-        gioiTinh: 'Nam',
-        tinhTrangHonNhan: 'Độc thân',
-        ngheNghiep: 'Nhân viên văn phòng',
-        thuNhapHangThang: 15000000,
-        trangThai: 'Hoạt động',
-        ngayDangKy: new Date('2024-01-15'),
-        lanDangNhapCuoi: new Date('2025-01-20'),
-        soLanVay: 2,
-        tongTienDaVay: 80000000,
-        danhGiaTinDung: 'Tốt'
+  loadUsers() {
+    this.isLoading = true;
+    this.error = null;
+    
+    this.userService.getAllUsers().subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.users = response.data;
+          this.applyFilters();
+        } else {
+          this.error = response.message;
+        }
+        this.isLoading = false;
       },
-      {
-        id: 'USER002',
-        hoTen: 'Trần Thị B',
-        email: 'tranthib@email.com',
-        soDienThoai: '0987654321',
-        cmnd: '987654321098',
-        diaChi: '456 Đường XYZ, Quận 2, TP.HCM',
-        ngaySinh: new Date('1985-08-22'),
-        gioiTinh: 'Nữ',
-        tinhTrangHonNhan: 'Đã kết hôn',
-        ngheNghiep: 'Kinh doanh',
-        thuNhapHangThang: 25000000,
-        trangThai: 'Hoạt động',
-        ngayDangKy: new Date('2023-12-10'),
-        lanDangNhapCuoi: new Date('2025-01-19'),
-        soLanVay: 4,
-        tongTienDaVay: 250000000,
-        danhGiaTinDung: 'Xuất sắc'
-      },
-      {
-        id: 'USER003',
-        hoTen: 'Lê Văn C',
-        email: 'levanc@email.com',
-        soDienThoai: '0369258147',
-        cmnd: '147258369012',
-        diaChi: '789 Đường DEF, Quận 3, TP.HCM',
-        ngaySinh: new Date('1992-12-10'),
-        gioiTinh: 'Nam',
-        tinhTrangHonNhan: 'Độc thân',
-        ngheNghiep: 'Kỹ sư',
-        thuNhapHangThang: 20000000,
-        trangThai: 'Hoạt động',
-        ngayDangKy: new Date('2024-03-22'),
-        lanDangNhapCuoi: new Date('2025-01-18'),
-        soLanVay: 1,
-        tongTienDaVay: 50000000,
-        danhGiaTinDung: 'Tốt'
-      },
-      {
-        id: 'USER004',
-        hoTen: 'Phạm Thị D',
-        email: 'phamthid@email.com',
-        soDienThoai: '0741852963',
-        cmnd: '963852741012',
-        diaChi: '321 Đường GHI, Quận 4, TP.HCM',
-        ngaySinh: new Date('1988-03-25'),
-        gioiTinh: 'Nữ',
-        tinhTrangHonNhan: 'Đã kết hôn',
-        ngheNghiep: 'Giáo viên',
-        thuNhapHangThang: 12000000,
-        trangThai: 'Tạm khóa',
-        ngayDangKy: new Date('2024-02-14'),
-        lanDangNhapCuoi: new Date('2025-01-10'),
-        soLanVay: 1,
-        tongTienDaVay: 30000000,
-        danhGiaTinDung: 'Trung bình'
-      },
-      {
-        id: 'USER005',
-        hoTen: 'Hoàng Văn E',
-        email: 'hoangvane@email.com',
-        soDienThoai: '0852963741',
-        cmnd: '741963852012',
-        diaChi: '654 Đường JKL, Quận 5, TP.HCM',
-        ngaySinh: new Date('1987-11-08'),
-        gioiTinh: 'Nam',
-        tinhTrangHonNhan: 'Đã kết hôn',
-        ngheNghiep: 'Quản lý',
-        thuNhapHangThang: 30000000,
-        trangThai: 'Hoạt động',
-        ngayDangKy: new Date('2023-11-05'),
-        lanDangNhapCuoi: new Date('2025-01-16'),
-        soLanVay: 3,
-        tongTienDaVay: 180000000,
-        danhGiaTinDung: 'Tốt'
-      },
-      {
-        id: 'USER006',
-        hoTen: 'Vũ Thị F',
-        email: 'vuthif@email.com',
-        soDienThoai: '0123789456',
-        cmnd: '456789123012',
-        diaChi: '987 Đường MNO, Quận 6, TP.HCM',
-        ngaySinh: new Date('1995-07-12'),
-        gioiTinh: 'Nữ',
-        tinhTrangHonNhan: 'Độc thân',
-        ngheNghiep: 'Marketing',
-        thuNhapHangThang: 18000000,
-        trangThai: 'Hoạt động',
-        ngayDangKy: new Date('2024-06-18'),
-        lanDangNhapCuoi: new Date('2025-01-21'),
-        soLanVay: 0,
-        tongTienDaVay: 0,
-        danhGiaTinDung: 'Mới'
+      error: (error) => {
+        console.error('Error loading users:', error);
+        this.error = 'Lỗi khi tải danh sách người dùng';
+        this.isLoading = false;
       }
-    ];
-
-    this.applyFilters();
+    });
   }
 
   applyFilters() {
     this.filteredUsers = this.users.filter(user => {
       const matchesSearch = !this.searchTerm || 
-        user.hoTen.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+        user.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
         user.email.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        user.id.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        user.soDienThoai.includes(this.searchTerm);
+        user.username.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+        user.phone.includes(this.searchTerm);
       
-      const matchesStatus = !this.statusFilter || user.trangThai === this.statusFilter;
-      const matchesCreditRating = !this.creditRatingFilter || user.danhGiaTinDung === this.creditRatingFilter;
+      const matchesCreditRating = !this.creditRatingFilter || user.creditRating === this.creditRatingFilter;
       
-      return matchesSearch && matchesStatus && matchesCreditRating;
+      return matchesSearch && matchesCreditRating;
     });
 
     this.totalPages = Math.ceil(this.filteredUsers.length / this.itemsPerPage);
@@ -220,55 +105,93 @@ export class AdminUserManagement implements OnInit {
 
   createUser() {
     this.selectedUser = {
-      id: '',
-      hoTen: '',
+      id: 0,
+      username: '',
+      name: '',
       email: '',
-      soDienThoai: '',
-      cmnd: '',
-      diaChi: '',
-      ngaySinh: new Date(),
-      gioiTinh: '',
-      tinhTrangHonNhan: '',
-      ngheNghiep: '',
-      thuNhapHangThang: 0,
-      trangThai: 'Hoạt động',
-      ngayDangKy: new Date(),
-      soLanVay: 0,
-      tongTienDaVay: 0,
-      danhGiaTinDung: 'Mới'
+      phone: '',
+      creditRating: 'unknown',
+      role: 'user',
+      createdAt: '',
+      updatedAt: ''
     };
     this.modalMode = 'create';
     this.showUserModal = true;
   }
 
   saveUser() {
-    if (this.selectedUser) {
-      if (this.modalMode === 'create') {
-        this.selectedUser.id = 'USER' + String(this.users.length + 1).padStart(3, '0');
-        this.users.push({ ...this.selectedUser });
-      } else if (this.modalMode === 'edit') {
-        const index = this.users.findIndex(u => u.id === this.selectedUser!.id);
-        if (index !== -1) {
-          this.users[index] = { ...this.selectedUser };
+    if (!this.selectedUser) return;
+
+    if (this.modalMode === 'create') {
+      const userData: CreateUserRequest = {
+        username: this.selectedUser.username,
+        password: this.selectedUser.password || '123456',
+        name: this.selectedUser.name,
+        email: this.selectedUser.email,
+        phone: this.selectedUser.phone,
+        creditRating: this.selectedUser.creditRating,
+        role: this.selectedUser.role
+      };
+
+      this.userService.createUser(userData).subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.loadUsers();
+            this.closeModal();
+            alert('Tạo người dùng thành công!');
+          } else {
+            alert('Lỗi: ' + response.message);
+          }
+        },
+        error: (error) => {
+          console.error('Error creating user:', error);
+          alert('Lỗi khi tạo người dùng');
         }
-      }
-      this.applyFilters();
-      this.closeModal();
+      });
+    } else if (this.modalMode === 'edit') {
+      const userData: UpdateUserRequest = {
+        username: this.selectedUser.username,
+        name: this.selectedUser.name,
+        email: this.selectedUser.email,
+        phone: this.selectedUser.phone,
+        creditRating: this.selectedUser.creditRating,
+        role: this.selectedUser.role
+      };
+
+      this.userService.updateUser(this.selectedUser.id, userData).subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.loadUsers();
+            this.closeModal();
+            alert('Cập nhật người dùng thành công!');
+          } else {
+            alert('Lỗi: ' + response.message);
+          }
+        },
+        error: (error) => {
+          console.error('Error updating user:', error);
+          alert('Lỗi khi cập nhật người dùng');
+        }
+      });
     }
   }
 
-  toggleUserStatus(user: User) {
-    user.trangThai = user.trangThai === 'Hoạt động' ? 'Tạm khóa' : 'Hoạt động';
-    console.log(`User ${user.id} status changed to: ${user.trangThai}`);
-  }
-
   deleteUser(user: User) {
-    if (confirm(`Bạn có chắc chắn muốn xóa người dùng ${user.hoTen}?`)) {
-      const index = this.users.findIndex(u => u.id === user.id);
-      if (index !== -1) {
-        this.users.splice(index, 1);
-        this.applyFilters();
-      }
+    if (confirm(`Bạn có chắc chắn muốn xóa người dùng ${user.name}?`)) {
+      this.userService.deleteUser(user.id).subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.loadUsers();
+            alert('Xóa người dùng thành công!');
+          } else {
+            alert('Lỗi: ' + response.message);
+          }
+        },
+        error: (error) => {
+          console.error('Error deleting user:', error);
+          alert('Lỗi khi xóa người dùng');
+        }
+      });
     }
   }
 
@@ -294,12 +217,26 @@ export class AdminUserManagement implements OnInit {
 
   getCreditRatingClass(rating: string): string {
     switch (rating) {
-      case 'Xuất sắc': return 'credit-excellent';
-      case 'Tốt': return 'credit-good';
-      case 'Trung bình': return 'credit-average';
-      case 'Mới': return 'credit-new';
-      default: return '';
+      case 'excellent': return 'credit-excellent';
+      case 'good': return 'credit-good';
+      case 'average': return 'credit-average';
+      case 'poor': return 'credit-poor';
+      default: return 'credit-unknown';
     }
+  }
+
+  getCreditRatingText(rating: string): string {
+    switch (rating) {
+      case 'excellent': return 'Xuất sắc';
+      case 'good': return 'Tốt';
+      case 'average': return 'Trung bình';
+      case 'poor': return 'Kém';
+      default: return 'Chưa xác định';
+    }
+  }
+
+  getRoleText(role: string): string {
+    return role === 'admin' ? 'Quản trị viên' : 'Người dùng';
   }
 
   exportToExcel() {
@@ -307,14 +244,11 @@ export class AdminUserManagement implements OnInit {
     // Thực tế sẽ implement export Excel
   }
 
-  viewUserApplications(userId: string) {
+  viewUserApplications(userId: number) {
     this.router.navigate(['/admin/loan-applications'], { queryParams: { userId } });
   }
 
-  updateBirthDate(event: Event) {
-    if (this.selectedUser) {
-      const target = event.target as HTMLInputElement;
-      this.selectedUser.ngaySinh = new Date(target.value);
-    }
+  formatDate(dateString: string): string {
+    return new Date(dateString).toLocaleDateString('vi-VN');
   }
 }
