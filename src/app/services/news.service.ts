@@ -63,7 +63,7 @@ export class NewsService {
   }
 
   updateNews(id: number, newsData: Partial<News>): Observable<{ success: boolean; message: string; data: News }> {
-    return this.http.put<{ success: boolean; message: string; data: News }>(`${this.apiUrl}/admin/news/${id}`, newsData);
+    return this.http.put<{ success: boolean; message: string; data: News }>(`${this.apiUrl}/admin/news/update/${id}`, newsData);
   }
 
   deleteNews(id: number): Observable<{ success: boolean; message: string }> {
@@ -71,7 +71,7 @@ export class NewsService {
   }
 
   toggleVisibility(id: number): Observable<{ success: boolean; message: string; data: { hidden: boolean } }> {
-    return this.http.patch<{ success: boolean; message: string; data: { hidden: boolean } }>(`${this.apiUrl}/admin/news/${id}/toggle-visibility`, {});
+    return this.http.patch<{ success: boolean; message: string; data: { hidden: boolean } }>(`${this.apiUrl}/admin/news/toggle-visibility/${id}`, {});
   }
     getCategoryById(categoryId: number): Observable<{ success: boolean; message: string; data: { name: string } }> {
         return this.http.get<{ success: boolean; message: string; data: { name: string } }>(`${this.apiUrl}/client/news/categories/${categoryId}`);
