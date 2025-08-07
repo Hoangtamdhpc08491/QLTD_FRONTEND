@@ -1,0 +1,203 @@
+<app-header></app-header>
+
+<div class="loan-contracts-page">
+  <!-- Page Header -->
+  <section class="page-header">
+    <div class="container">
+      <div class="header-content">
+        <h1>Hợp đồng vay của tôi</h1>
+        <p>Quản lý và theo dõi các đơn vay đã gửi</p>
+      </div>
+      <div class="header-actions">
+        <a routerLink="/goi-vay" class="btn btn-primary">
+          <i class="icon-plus"></i>
+          Tạo đơn vay mới
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Error Display -->
+  <div class="error-container" *ngIf="error">
+    <div class="container">
+      <div class="alert alert-error">
+        {{error}}
+        <button type="button" class="close-btn" (click)="error = null">×</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters and Search -->
+  <section class="filters-section">
+    <div class="container">
+      <div class="filters-row">
+        <div class="search-box">
+          <input 
+            type="text" 
+            [(ngModel)]="searchTerm"
+            (ngModelChange)="onSearchChange()"
+            placeholder="Tìm kiếm theo tên, email..."
+            class="search-input">
+          <i class="search-icon">🔍</i>
+        </div>
+
+        <div class="filter-group">
+          <label>Trạng thái:</label>
+          <select 
+            [(ngModel)]="selectedStatus"
+            (ngModelChange)="onFilterChange()"
+            class="filter-select">
+            <option *ngFor="let option of statusOptions" [value]="option.value">
+              {{option.label}}
+            </option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label>Sắp xếp:</label>
+          <select 
+            [(ngModel)]="sortBy"
+            (ngModelChange)="onSortChange()"
+            class="filter-select">
+            <option *ngFor="let option of sortOptions" [value]="option.value">
+              {{option.label}}
+            </option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <select 
+            [(ngModel)]="sortOrder"
+            (ngModelChange)="onSortChange()"
+            class="filter-select">
+            <option value="desc">Giảm dần</option>
+            <option value="asc">Tăng dần</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contracts List -->
+  <section class="contracts-section">
+    <div class="container">
+      <!-- Loading State -->
+      <div class="loading-container" *ngIf="isLoading">
+        <div class="spinner"></div>
+        <p>Đang tải danh sách hợp đồng...</p>
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state" *ngIf="!isLoading && contracts.length === 0">
+        <div class="empty-icon">📄</div>
+        <h3>Chưa có hợp đồng vay nào</h3>
+        <p>Bạn chưa gửi đơn vay nào. Hãy tạo đơn vay đầu tiên của bạn.</p>
+        <a routerLink="/goi-vay" class="btn btn-primary">Tạo đơn vay mới</a>
+      </div>
+
+      <!-- Contracts Table -->
+      <div class="contracts-table" *ngIf="!isLoading && contracts.length > 0">
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Mã đơn</th>
+                <th>Gói vay</th>
+                <th>Số tiền</th>
+                <th>Thời hạn</th>
+                <th>Trạng thái</th>
+                <th>Ngày tạo</th>
+                <th>Hành động</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let contract of filteredContracts" class="contract-row">
+                <td>
+                  <span class="contract-id">#{{contract.id}}</span>
+                </td>
+                <td>
+                  <div class="package-info">
+                    <span class="package-name">{{contract.loanPackage?.name || 'N/A'}}</span>
+                  </div>
+                </td>
+                <td>
+                  <span class="loan-amount">{{formatCurrency(contract.loanAmount)}}</span>
+                </td>
+                <td>
+                  <span class="loan-term">{{contract.loanTerm}} tháng</span>
+                </td>
+                <td>
+                  <span class="status-badge" [class]="getStatusClass(contract.status)">
+                    {{getStatusLabel(contract.status)}}
+                  </span>
+                </td>
+                <td>
+                  <span class="created-date">{{formatDate(contract.createdAt)}}</span>
+                </td>
+                <td>
+                  <div class="action-buttons">
+                    <button 
+                      type="button"
+                      class="btn btn-sm btn-info"
+                      (click)="viewContract(contract)"
+                      title="Xem chi tiết">
+                      👁️
+                    </button>
+                    
+                   
+                    
+                    <button 
+                      type="button"
+                      class="btn btn-sm btn-danger"
+                      *ngIf="canDelete(contract)"
+                      (click)="deleteContract(contract)"
+                      title="Xóa">
+                      🗑️
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination-container" *ngIf="!isLoading && totalPages > 1">
+        <div class="pagination-info">
+          <span>
+            Hiển thị {{(currentPage - 1) * itemsPerPage + 1}} - 
+            {{Math.min(currentPage * itemsPerPage, totalCount)}} 
+            trong tổng số {{totalCount}} hợp đồng
+          </span>
+        </div>
+        
+        <div class="pagination">
+          <button 
+            class="page-btn"
+            [disabled]="currentPage === 1"
+            (click)="previousPage()">
+            « Trước
+          </button>
+          
+          <button 
+            *ngFor="let page of getPaginationPages()"
+            class="page-btn"
+            [class.active]="page === currentPage"
+            (click)="goToPage(page)">
+            {{page}}
+          </button>
+          
+          <button 
+            class="page-btn"
+            [disabled]="currentPage === totalPages"
+            (click)="nextPage()">
+            Sau »
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<app-footer></app-footer>

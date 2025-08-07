@@ -3,6 +3,8 @@ import { Home } from './components/home/home';
 import { LoanPackagesList } from './components/loan-packages/loan-packages-list/loan-packages-list';
 import { LoanPackageDetail } from './components/loan-packages/loan-package-detail/loan-package-detail';
 import { LoanApplication } from './components/loan-packages/loan-application/loan-application';
+import { LoanContracts } from './components/loan-packages/loan-contracts/loan-contracts';
+import { LoanContractDetail } from './components/loan-packages/loan-contract-detail/loan-contract-detail';
 import { NewsList } from './components/news/news-list/news-list';
 import { NewsDetail } from './components/news/news-detail/news-detail';
 import { AdminLayout } from './components/admin/admin-layout/admin-layout';
@@ -27,6 +29,8 @@ export const routes: Routes = [
   { path: 'goi-vay/chi-tiet/:id', component: LoanPackageDetail },
   { path: 'dang-ky-vay', component: LoanApplication },
   { path: 'dang-ky-vay/:packageId', component: LoanApplication },
+  { path: 'hop-dong-vay', component: LoanContracts, canActivate: [authGuard] },
+  { path: 'hop-dong-vay/:id', component: LoanContractDetail, canActivate: [authGuard] },
   { path: 'news', component: NewsList },
   { path: 'news/:id', component: NewsDetail },
   { path: 'tin-tuc', component: NewsList },

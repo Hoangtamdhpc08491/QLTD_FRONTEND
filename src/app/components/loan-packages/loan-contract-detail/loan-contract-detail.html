@@ -1,0 +1,208 @@
+<app-header></app-header>
+
+<div class="loan-contract-detail-page">
+  <!-- Page Header -->
+  <section class="page-header">
+    <div class="container">
+      <div class="header-content">
+        <button type="button" class="back-btn" (click)="goBack()">
+          ← Quay lại
+        </button>
+        <h1>Chi tiết hợp đồng vay</h1>
+        <p *ngIf="contract">Mã hợp đồng: #{{contract.id}}</p>
+      </div>
+      <div class="header-actions" *ngIf="contract">
+        <span class="status-badge" [class]="getStatusClass(contract.status)">
+          {{getStatusLabel(contract.status)}}
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Error Display -->
+  <div class="error-container" *ngIf="error">
+    <div class="container">
+      <div class="alert alert-error">
+        {{error}}
+        <button type="button" class="close-btn" (click)="error = null">×</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Đang tải thông tin hợp đồng...</p>
+  </div>
+
+  <!-- Contract Details -->
+  <section class="contract-details-section" *ngIf="!isLoading && contract">
+    <div class="container">
+      <div class="details-grid">
+        
+        <!-- Thông tin cá nhân -->
+        <div class="detail-card">
+          <div class="card-header">
+            <h3>📋 Thông tin cá nhân</h3>
+          </div>
+          <div class="card-content">
+            <div class="info-row">
+              <span class="label">Họ và tên:</span>
+              <span class="value">{{contract.name}}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Email:</span>
+              <span class="value">{{contract.email}}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Số điện thoại:</span>
+              <span class="value">{{contract.phone}}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Địa chỉ:</span>
+              <span class="value">{{contract.address}}</span>
+            </div>
+            <div class="info-row" *ngIf="contract.birthDay">
+              <span class="label">Ngày sinh:</span>
+              <span class="value">{{formatDate(contract.birthDay)}}</span>
+            </div>
+            <div class="info-row" *ngIf="contract.gender">
+              <span class="label">Giới tính:</span>
+              <span class="value">{{contract.gender}}</span>
+            </div>
+            <div class="info-row" *ngIf="contract.maritalStatus">
+              <span class="label">Tình trạng hôn nhân:</span>
+              <span class="value">{{contract.maritalStatus}}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Nghề nghiệp:</span>
+              <span class="value">{{contract.job}}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Thu nhập hàng tháng:</span>
+              <span class="value highlight">{{formatCurrency(contract.salary)}}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Thông tin gói vay -->
+        <div class="detail-card">
+          <div class="card-header">
+            <h3>📦 Thông tin gói vay</h3>
+          </div>
+          <div class="card-content">
+            <div class="info-row" *ngIf="contract.loanPackage">
+              <span class="label">Tên gói vay:</span>
+              <span class="value">{{contract.loanPackage.name}}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Số tiền vay:</span>
+              <span class="value highlight">{{formatCurrency(contract.loanAmount)}}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Thời hạn vay:</span>
+              <span class="value">{{contract.loanTerm}} tháng</span>
+            </div>
+            <div class="info-row" *ngIf="contract.interestRate">
+              <span class="label">Lãi suất:</span>
+              <span class="value">{{contract.interestRate}}%/tháng</span>
+            </div>
+            <div class="info-row" *ngIf="contract.emi">
+              <span class="label">Trả hàng tháng:</span>
+              <span class="value highlight">{{formatCurrency(contract.emi)}}</span>
+            </div>
+            <div class="info-row" *ngIf="contract.interestAmount">
+              <span class="label">Tổng tiền lãi:</span>
+              <span class="value">{{formatCurrency(contract.interestAmount)}}</span>
+            </div>
+            <div class="info-row" *ngIf="contract.totalAmount">
+              <span class="label">Tổng số tiền phải trả:</span>
+              <span class="value highlight">{{formatCurrency(contract.totalAmount)}}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Thông tin hợp đồng -->
+        <div class="detail-card">
+          <div class="card-header">
+            <h3>📄 Thông tin hợp đồng</h3>
+          </div>
+          <div class="card-content">
+            <div class="info-row">
+              <span class="label">Mã hợp đồng:</span>
+              <span class="value">#{{contract.id}}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Trạng thái:</span>
+              <span class="status-badge" [class]="getStatusClass(contract.status)">
+                {{getStatusLabel(contract.status)}}
+              </span>
+            </div>
+            <div class="info-row">
+              <span class="label">Ngày tạo:</span>
+              <span class="value">{{formatDate(contract.createdAt)}}</span>
+            </div>
+            <div class="info-row" *ngIf="contract.updatedAt !== contract.createdAt">
+              <span class="label">Ngày cập nhật:</span>
+              <span class="value">{{formatDate(contract.updatedAt)}}</span>
+            </div>
+            <div class="info-row" *ngIf="contract.contractDate">
+              <span class="label">Ngày ký hợp đồng:</span>
+              <span class="value">{{formatDate(contract.contractDate)}}</span>
+            </div>
+            <div class="info-row" *ngIf="contract.note">
+              <span class="label">Ghi chú:</span>
+              <span class="value">{{contract.note}}</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-section" *ngIf="contract">
+        <div class="action-buttons">
+          <button 
+            type="button"
+            class="btn btn-secondary"
+            (click)="goBack()">
+            ← Quay lại danh sách
+          </button>
+
+    
+          <button 
+            type="button"
+            class="btn btn-danger"
+            *ngIf="canDelete()"
+            (click)="deleteContract()">
+            🗑️ Xóa hợp đồng
+          </button>
+        </div>
+
+        <!-- Status Info -->
+        <div class="status-info" *ngIf="contract.status === 'pending'">
+          <div class="info-box info-warning">
+            <h4>⏳ Đơn vay đang chờ xử lý</h4>
+            <p>Đơn vay của bạn đang được xem xét. Chúng tôi sẽ liên hệ với bạn trong thời gian sớm nhất.</p>
+          </div>
+        </div>
+
+        <div class="status-info" *ngIf="contract.status === 'approved'">
+          <div class="info-box info-success">
+            <h4>✅ Đơn vay đã được phê duyệt</h4>
+            <p>Chúc mừng! Đơn vay của bạn đã được phê duyệt. Vui lòng liên hệ với chúng tôi để hoàn tất thủ tục.</p>
+          </div>
+        </div>
+
+        <div class="status-info" *ngIf="contract.status === 'rejected'">
+          <div class="info-box info-error">
+            <h4>❌ Đơn vay bị từ chối</h4>
+            <p>Rất tiếc, đơn vay của bạn không được phê duyệt. Vui lòng liên hệ với chúng tôi để biết thêm chi tiết.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<app-footer></app-footer>
