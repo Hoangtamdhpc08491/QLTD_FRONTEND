@@ -14,7 +14,7 @@ export const adminGuard: CanActivateFn = () => {
   const currentUser = authService.getCurrentUser();
   
   // Kiểm tra xem user có role admin không hoặc username = 'admin'
-  if (currentUser && (currentUser.role === 'admin' || currentUser.username === 'admin')) {
+  if (currentUser && (currentUser.role == 'admin')) {
     return true;
   }
 

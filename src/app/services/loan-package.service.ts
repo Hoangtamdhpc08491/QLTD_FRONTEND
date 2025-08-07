@@ -8,6 +8,7 @@ export interface LoanPackage {
   baseInterestRate: number;
   interestRate2?: number;
   interestRate3?: number;
+  maxAmount?: number; // Thêm trường maxAmount
   description1: string;
   description2?: string;
   description3?: string;

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Footer } from '../../shared/footer/footer';
@@ -16,7 +16,7 @@ export class LoanPackagesList implements OnInit {
   loading = true;
   error: string | null = null;
 
-  constructor(private loanPackageService: LoanPackageService) {}
+  private loanPackageService = inject(LoanPackageService);
 
   ngOnInit() {
     this.loadLoanPackages();
@@ -42,6 +42,7 @@ export class LoanPackagesList implements OnInit {
               name: pkg.name,
               description1: pkg.description1,
               baseInterestRate: pkg.baseInterestRate,
+              maxAmount: pkg.maxAmount,
               category: pkg.category
             });
           });
@@ -58,15 +59,21 @@ export class LoanPackagesList implements OnInit {
     });
   }
 
-  formatCurrency(amount: number): string {
+  formatCurrency(amount: number | undefined): string {
+    if (amount === undefined || amount === null) {
+      return 'Liên hệ';
+    }
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
       currency: 'VND'
     }).format(amount);
   }
 
-  getInterestRateText(rate: number): string {
-    return `${rate}%/tháng`;
+  getInterestRateText(rate: number | undefined): string {
+    if (rate === undefined || rate === null) {
+      return 'Liên hệ';
+    }
+    return `${rate}%/năm`;
   }
 
   formatDate(date: string): string {

@@ -156,6 +156,21 @@ import { CategoryService, Category } from '../../../services/category.service';
                 </div>
               </div>
             </div>
+            <div class="form-group">
+              <label for="maxAmount">Số tiền tối đa (VND) *</label>
+              <input 
+                type="number" 
+                id="maxAmount" 
+                formControlName="maxAmount"
+                class="form-control"
+                step="1000"
+                min="0"
+                [class.error]="loanPackageForm.get('maxAmount')?.invalid && loanPackageForm.get('maxAmount')?.touched"
+              >
+              <div *ngIf="loanPackageForm.get('maxAmount')?.invalid && loanPackageForm.get('maxAmount')?.touched" class="error-text">
+                Số tiền tối đa là bắt buộc
+              </div>
+            </div>
 
             <div class="form-group">
               <label for="description1">Mô tả chính *</label>
@@ -507,6 +522,7 @@ export class AdminLoanPackages implements OnInit {
       baseInterestRate: ['', [Validators.required, Validators.min(0), Validators.max(100)]],
       interestRate2: [''],
       interestRate3: [''],
+      maxAmount: ['', [Validators.required]],
       description1: ['', [Validators.required]],
       description2: [''],
       description3: [''],
@@ -569,6 +585,7 @@ export class AdminLoanPackages implements OnInit {
     this.selectedPackage = loanPackage;
     this.loanPackageForm.patchValue({
       name: loanPackage.name,
+      maxAmount: loanPackage.maxAmount,
       baseInterestRate: loanPackage.baseInterestRate,
       interestRate2: loanPackage.interestRate2 || '',
       interestRate3: loanPackage.interestRate3 || '',

@@ -62,12 +62,17 @@
             <div class="package-features">
               <div class="feature-item">
                 <span class="feature-label">Lãi suất từ:</span>
-                <span class="feature-value highlight">{{getInterestRateText(package?.baseInterestRate || 0)}}</span>
+                <span class="feature-value highlight">{{getInterestRateText(package?.baseInterestRate)}}</span>
               </div>
               <div class="feature-item" *ngIf="package?.category">
                 <span class="feature-label">Danh mục:</span>
                 <span class="feature-value">{{package?.category?.name || 'Không có danh mục'}}</span>
               </div>
+              <div class="feature-item" *ngIf="package?.maxAmount">
+                <span class="feature-label">Hạn mức:</span>
+                <span class="feature-value">{{formatCurrency(package?.maxAmount)}}</span>
+              </div>
+
               
             </div>
 
