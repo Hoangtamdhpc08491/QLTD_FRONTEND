@@ -1,4 +1,4 @@
-<<!-- Header -->
+<!-- Header -->
 <app-header></app-header>
 
 <div class="news-page">
@@ -19,111 +19,131 @@
   <!-- Main Content -->
   <section class="news-content">
     <div class="container">
-      <div class="content-grid">
-        <!-- Categories Sidebar -->
-        <aside class="categories-sidebar">
-          <div class="categories-card">
-            <h3 class="categories-title">Danh mục</h3>
-            <ul class="categories-list">
-              <li *ngFor="let category of categories">
-                <button 
-                  class="category-item"
-                  [class.active]="selectedCategory === category.id"
-                  (click)="selectCategory(category.id)">
-                  {{category.ten}}
-                  <span class="category-count" *ngIf="category.id !== 'all'">
-                    ({{getCategoryCount(category.id)}})
-                  </span>
-                  <span class="category-count" *ngIf="category.id === 'all'">
-                    ({{newsList.length}})
-                  </span>
-                </button>
-              </li>
-            </ul>
-          </div>
-
-          <!-- Featured News -->
-          <div class="featured-card">
-            <h3 class="featured-title">Tin nổi bật</h3>
-            <div class="featured-list">
-              <div class="featured-item" 
-                   *ngFor="let news of newsList.slice(0, 3)">
-                <div class="featured-image">
-                  <img [src]="news.anhDaiDien" [alt]="news.tieuDe" loading="lazy">
-                </div>
-                <div class="featured-content">
-                  <h4>
-                    <a [routerLink]="['/tin-tuc', news.id]">{{news.tieuDe}}</a>
-                  </h4>
-                  <div class="featured-meta">
-                    <span class="meta-date">{{formatShortDate(news.ngayDang)}}</span>
-                    <span class="meta-views">{{formatViewCount(news.luotXem)}} lượt xem</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </aside>
-
-        <!-- News List -->
-        <main class="news-main">
-          <div class="news-header">
-            <h2 class="section-title">
-              {{selectedCategory === 'all' ? 'Tất cả tin tức' : getCategoryName(selectedCategory)}}
-            </h2>
-            <p class="news-count">{{filteredNews.length}} bài viết</p>
-          </div>
-
-          <div class="news-grid">
-            <article class="news-card" *ngFor="let news of filteredNews">
-              <div class="news-image">
-                <a [routerLink]="['/tin-tuc', news.id]">
-                  <img [src]="news.anhDaiDien" [alt]="news.tieuDe" loading="lazy">
-                </a>
-                <div class="news-category">{{getCategoryName(news.danhMuc)}}</div>
-              </div>
-
-              <div class="news-content">
-                <div class="news-meta">
-                  <span class="meta-author">{{news.tacGia}}</span>
-                  <span class="meta-date">{{formatDate(news.ngayDang)}}</span>
-                  <span class="meta-views">{{formatViewCount(news.luotXem)}} lượt xem</span>
-                </div>
-
-                <h3 class="news-title">
-                  <a [routerLink]="['/tin-tuc', news.id]">{{news.tieuDe}}</a>
-                </h3>
-
-                <p class="news-excerpt">{{news.tomTat}}</p>
-
-                <div class="news-tags">
-                  <span class="tag" *ngFor="let tag of news.tags">#{{tag}}</span>
-                </div>
-
-                <div class="news-actions">
-                  <a [routerLink]="['/tin-tuc', news.id]" class="read-more-btn">
-                    Đọc tiếp
-                    <span class="btn-icon">→</span>
-                  </a>
-                </div>
-              </div>
-            </article>
-          </div>
-
-          <!-- Empty State -->
-          <div class="empty-state" *ngIf="filteredNews.length === 0">
-            <div class="empty-icon">📰</div>
-            <h3>Không có tin tức nào</h3>
-            <p>Hiện tại chưa có tin tức nào trong danh mục này.</p>
-          </div>
-
-          <!-- Load More Button -->
-          <div class="load-more" *ngIf="filteredNews.length > 0">
-            <button class="btn btn-outline btn-large">
-              Xem thêm tin tức
+      <!-- Search and Filter -->
+      <div class="filter-section">
+        <div class="filter-row">
+          <div class="search-box">
+            <input 
+              type="text" 
+              [(ngModel)]="searchTerm"
+              (keyup.enter)="onSearch()"
+              placeholder="Tìm kiếm tin tức..."
+              class="search-input">
+            <button (click)="onSearch()" class="search-btn">
+              <i class="fas fa-search"></i>
             </button>
           </div>
-        </main>
+          
+          <div class="category-filter">
+            <select [(ngModel)]="selectedCategory" (change)="onCategoryChange()" class="category-select">
+              <option [value]="null">Tất cả danh mục</option>
+              <option *ngFor="let category of categories" [value]="category.id">
+                {{category.name}}
+              </option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div *ngIf="isLoading" class="loading-state">
+        <div class="loading-spinner"></div>
+        <p>Đang tải tin tức...</p>
+      </div>
+
+      <!-- Error State -->
+      <div *ngIf="error && !isLoading" class="error-state">
+        <div class="error-message">
+          <i class="fas fa-exclamation-triangle"></i>
+          <p>{{error}}</p>
+          <button (click)="loadNews()" class="retry-btn">Thử lại</button>
+        </div>
+      </div>
+
+      <!-- News List -->
+      <div class="news-main" *ngIf="!isLoading && !error">
+        <div class="news-grid" *ngIf="newsList.length > 0">
+          <article class="news-card" *ngFor="let news of newsList">
+            <div class="news-image">
+              <img 
+                [src]="news.thumbnail || '/assets/images/news/default-news.jpg'" 
+                [alt]="news.title"
+                class="news-thumbnail"
+                loading="lazy">
+              <div class="news-category-badge">
+                {{getCategoryName(news.categoryId)}}
+              </div>
+            </div>
+            
+            <div class="news-content">
+              <div class="news-meta">
+                <span class="news-date">{{formatDate(news.timeUpload)}}</span>
+                <span class="news-author" *ngIf="news.uploadBy">{{news.uploadBy}}</span>
+              </div>
+              
+              <h3 class="news-title">
+                <a [routerLink]="['/news', news.id]">{{news.title}}</a>
+              </h3>
+              
+              <p class="news-excerpt">
+                {{news.content | slice:0:150}}...
+              </p>
+              
+              <div class="news-footer">
+                <a [routerLink]="['/news', news.id]" class="read-more-btn">
+                  Đọc thêm
+                  <i class="fas fa-arrow-right"></i>
+                </a>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="newsList.length === 0" class="empty-state">
+          <div class="empty-message">
+            <i class="fas fa-newspaper"></i>
+            <h3>Không có tin tức nào</h3>
+            <p>Hiện tại chưa có tin tức nào phù hợp với bộ lọc của bạn.</p>
+          </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination-wrapper" *ngIf="totalPages > 1">
+          <nav class="pagination">
+            <button 
+              class="pagination-btn"
+              [disabled]="currentPage === 1"
+              (click)="onPageChange(currentPage - 1)">
+              <i class="fas fa-chevron-left"></i>
+              Trước
+            </button>
+            
+            <div class="pagination-numbers">
+              <button 
+                *ngFor="let page of getPaginationPages()"
+                class="pagination-number"
+                [class.active]="page === currentPage"
+                (click)="onPageChange(page)">
+                {{page}}
+              </button>
+            </div>
+            
+            <button 
+              class="pagination-btn"
+              [disabled]="currentPage === totalPages"
+              (click)="onPageChange(currentPage + 1)">
+              Sau
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </nav>
+          
+          <div class="pagination-info">
+            Hiển thị {{(currentPage - 1) * itemsPerPage + 1}} - 
+            {{currentPage * itemsPerPage > totalItems ? totalItems : currentPage * itemsPerPage}} 
+            trong tổng số {{totalItems}} tin tức
+          </div>
+        </div>
       </div>
     </div>
   </section>

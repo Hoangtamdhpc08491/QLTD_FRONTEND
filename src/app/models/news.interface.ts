@@ -1,24 +1,40 @@
 export interface News {
-  id: string;
-  tieuDe: string;
-  tomTat: string;
-  noiDung: string;
-  anhDaiDien: string;
-  tacGia: string;
-  ngayDang: Date;
-  ngayCapNhat?: Date;
-  luotXem: number;
-  danhMuc: string;
-  tags: string[];
-  trangThai: 'published' | 'draft';
-  noiDung_html?: string;
-  meta_description?: string;
-  meta_keywords?: string;
+  id: number;
+  title: string;
+  content: string;
+  thumbnail?: string;
+  timeUpload?: Date;
+  timeActive?: Date;
+  hide?: boolean;
+  categoryId?: number;
+  uploadBy?: string;
+  deleteFlag?: boolean;
+  createAt?: Date;
+  updateAt?: Date;
+  Category?: NewsCategory;
 }
 
 export interface NewsCategory {
-  id: string;
-  ten: string;
-  moTa: string;
-  thuTu: number;
+  id: number;
+  name: string;
+  description?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface NewsResponse {
+  success: boolean;
+  message: string;
+  data: News[];
+  pagination?: {
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
+  };
+}
+
+export interface NewsCategoryResponse {
+  success: boolean;
+  message: string;
+  data: NewsCategory[];
 }

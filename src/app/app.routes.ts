@@ -11,6 +11,9 @@ import { AdminLoanApplications } from './components/admin/admin-loan-application
 import { AdminLoanPackages } from './components/admin/admin-loan-packages/admin-loan-packages';
 import { AdminCategories } from './components/admin/admin-categories/admin-categories';
 import { AdminUserManagement } from './components/admin/admin-user-management/admin-user-management';
+import { AdminNewsListComponent } from './components/admin/news/news-list/admin-news-list.component';
+import { AdminNewsFormComponent } from './components/admin/news/news-form/admin-news-form.component';
+import { AdminNewsCategoriesComponent } from './components/admin/news/news-categories/admin-news-categories.component';
 import { Login } from './components/auth/login/login';
 import { Register } from './components/auth/register/register';
 import { Profile } from './components/auth/profile/profile';
@@ -24,6 +27,8 @@ export const routes: Routes = [
   { path: 'goi-vay/chi-tiet/:id', component: LoanPackageDetail },
   { path: 'dang-ky-vay', component: LoanApplication },
   { path: 'dang-ky-vay/:packageId', component: LoanApplication },
+  { path: 'news', component: NewsList },
+  { path: 'news/:id', component: NewsDetail },
   { path: 'tin-tuc', component: NewsList },
   { path: 'tin-tuc/:id', component: NewsDetail },
   
@@ -46,6 +51,10 @@ export const routes: Routes = [
       { path: 'loan-packages', component: AdminLoanPackages },
       { path: 'categories', component: AdminCategories },
       { path: 'users', component: AdminUserManagement },
+      { path: 'news', component: AdminNewsListComponent },
+      { path: 'news/create', component: AdminNewsFormComponent },
+      { path: 'news/:id/edit', component: AdminNewsFormComponent },
+      { path: 'news-categories', component: AdminNewsCategoriesComponent },
     ]
   },
   
