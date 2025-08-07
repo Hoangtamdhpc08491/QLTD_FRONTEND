@@ -1,35 +1,27 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
-import { FormsModule, NgForm } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { Footer } from '../../shared/footer/footer';
 import { Header } from '../../shared/header/header';
+import { LoanContractService, CreateLoanContractRequest, LoanCalculationRequest, LoanCalculationResponse } from '../../../services/loan-contract.service';
+import { LoanPackageService, LoanPackage } from '../../../services/loan-package.service';
+import { AuthService } from '../../../services/auth.service';
 
 interface LoanApplicationData {
-  hoTen: string;
+  name: string;
   email: string;
-  soDienThoai: string;
-  cmnd: string;
-  diaChi: string;
-  ngaySinh: string;
-  gioiTinh: string;
-  tinhTrangHonNhan: string;
-  ngheNghiep: string;
-  thuNhapHangThang: number;
-  maGoiVay: string;
-  soTienVay: number;
-  thoiHanVay: number;
-  mucDichVay: string;
-  ghiChu: string;
-}
-
-interface LoanPackage {
-  maGoiVay: string;
-  tenGoiVay: string;
-  laiSuat: number;
-  hanMuc: number;
-  thoiHan: string;
-  icon: string;
+  phone: string;
+  address: string;
+  birthDay: string;
+  gender: string;
+  maritalStatus: string;
+  job: string;
+  salary: number;
+  loanPackageId: number;
+  loanAmount: number;
+  loanTerm: number;
+  note?: string;
 }
 
 @Component({
@@ -42,115 +34,113 @@ export class LoanApplication implements OnInit {
   currentStep = 1;
   totalSteps = 4;
   selectedPackage: LoanPackage | null = null;
+  loanCalculation: LoanCalculationResponse['data'] | null = null;
   
+  // Inject services
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private loanContractService = inject(LoanContractService);
+  private loanPackageService = inject(LoanPackageService);
+  private authService = inject(AuthService);
+
+  // Loading states
+  isLoading = false;
+  isCalculating = false;
+  isSubmitting = false;
+  error: string | null = null;
+
   application: LoanApplicationData = {
-    hoTen: '',
+    name: '',
     email: '',
-    soDienThoai: '',
-    cmnd: '',
-    diaChi: '',
-    ngaySinh: '',
-    gioiTinh: '',
-    tinhTrangHonNhan: '',
-    ngheNghiep: '',
-    thuNhapHangThang: 0,
-    maGoiVay: '',
-    soTienVay: 0,
-    thoiHanVay: 12,
-    mucDichVay: '',
-    ghiChu: ''
+    phone: '',
+    address: '',
+    birthDay: '',
+    gender: 'Nam',
+    maritalStatus: 'Độc thân',
+    job: '',
+    salary: 0,
+    loanPackageId: 0,
+    loanAmount: 0,
+    loanTerm: 6,
+    note: ''
   };
 
-  // Mock data cho các gói vay
-  loanPackages: LoanPackage[] = [
-    {
-      maGoiVay: 'VKD001',
-      tenGoiVay: 'Vay Kinh Doanh Online',
-      laiSuat: 1.2,
-      hanMuc: 500000000,
-      thoiHan: '6-36 tháng',
-      icon: '🏢'
-    },
-    {
-      maGoiVay: 'VCN002',
-      tenGoiVay: 'Vay Cá Nhân Tiêu Dùng',
-      laiSuat: 1.5,
-      hanMuc: 200000000,
-      thoiHan: '3-24 tháng',
-      icon: '👤'
-    },
-    {
-      maGoiVay: 'VTC003',
-      tenGoiVay: 'Vay Thế Chấp Tài Sản',
-      laiSuat: 0.9,
-      hanMuc: 5000000000,
-      thoiHan: '12-120 tháng',
-      icon: '🏠'
-    },
-    {
-      maGoiVay: 'VNH004',
-      tenGoiVay: 'Vay Nhanh 15 Phút',
-      laiSuat: 2.0,
-      hanMuc: 50000000,
-      thoiHan: '1-6 tháng',
-      icon: '⚡'
-    }
+  // Loan term options
+  loanTermOptions = [
+    { value: 6, label: '6 tháng' },
+    { value: 12, label: '12 tháng' },
+    { value: 18, label: '18 tháng' },
+    { value: 24, label: '24 tháng' },
+    { value: 30, label: '30 tháng' },
+    { value: 36, label: '36 tháng' }
   ];
 
   genderOptions = [
-    { value: 'nam', label: 'Nam' },
-    { value: 'nu', label: 'Nữ' },
-    { value: 'khac', label: 'Khác' }
+    { value: 'Nam', label: 'Nam' },
+    { value: 'Nữ', label: 'Nữ' },
+    { value: 'Khác', label: 'Khác' }
   ];
 
   maritalOptions = [
-    { value: 'doc-than', label: 'Độc thân' },
-    { value: 'ket-hon', label: 'Kết hôn' },
-    { value: 'ly-hon', label: 'Ly hôn' },
-    { value: 'goa', label: 'Góa' }
+    { value: 'Độc thân', label: 'Độc thân' },
+    { value: 'Kết hôn', label: 'Kết hôn' },
+    { value: 'Ly hôn', label: 'Ly hôn' },
+    { value: 'Góa', label: 'Góa' }
   ];
-
-  occupationOptions = [
-    { value: 'nhan-vien', label: 'Nhân viên văn phòng' },
-    { value: 'cong-nhan', label: 'Công nhân' },
-    { value: 'kinh-doanh', label: 'Kinh doanh tự do' },
-    { value: 'giao-vien', label: 'Giáo viên' },
-    { value: 'bac-si', label: 'Bác sĩ' },
-    { value: 'ky-su', label: 'Kỹ sư' },
-    { value: 'khac', label: 'Khác' }
-  ];
-
-  loanPurposeOptions = [
-    { value: 'kinh-doanh', label: 'Kinh doanh' },
-    { value: 'mua-nha', label: 'Mua nhà' },
-    { value: 'mua-xe', label: 'Mua xe' },
-    { value: 'giao-duc', label: 'Giáo dục' },
-    { value: 'y-te', label: 'Y tế' },
-    { value: 'du-lich', label: 'Du lịch' },
-    { value: 'tieu-dung', label: 'Tiêu dùng cá nhân' },
-    { value: 'khac', label: 'Khác' }
-  ];
-
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router
-  ) {}
 
   ngOnInit() {
-    this.route.params.subscribe(params => {
-      const packageId = params['packageId'];
-      if (packageId) {
-        this.application.maGoiVay = packageId;
-        this.selectedPackage = this.loanPackages.find(
-          pkg => pkg.maGoiVay === packageId
-        ) || null;
+    this.loadLoanPackageFromRoute();
+    this.loadUserInfo();
+  }
+
+  private loadLoanPackageFromRoute() {
+    const packageId = this.route.snapshot.paramMap.get('packageId');
+    console.log('Package ID from route:', packageId);
+    if (packageId) {
+      this.loadLoanPackage(parseInt(packageId));
+    } else {
+      console.log('No package ID found in route');
+    }
+  }
+
+  private loadLoanPackage(id: number) {
+    console.log('Loading loan package with ID:', id);
+    this.isLoading = true;
+    this.loanPackageService.getLoanPackageById(id).subscribe({
+      next: (response) => {
+        console.log('Loan package response:', response);
+        if (response.success) {
+          this.selectedPackage = response.data;
+          this.application.loanPackageId = response.data.id;
+          console.log('Selected package:', this.selectedPackage);
+        }
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error loading loan package:', error);
+        this.error = 'Không thể tải thông tin gói vay';
+        this.isLoading = false;
       }
     });
   }
 
+  private loadUserInfo() {
+    const currentUser = this.authService.getCurrentUser();
+    if (currentUser) {
+      this.application.name = currentUser.name;
+      this.application.email = currentUser.email;
+      this.application.phone = currentUser.phone;
+    }
+  }
+
   nextStep() {
-    if (this.currentStep < this.totalSteps) {
+    if (this.currentStep < this.totalSteps && this.canProceedToNextStep()) {
       this.currentStep++;
+      
+      // Tính toán khi đến step 3 (xem trước)
+      if (this.currentStep === 3) {
+        this.calculateLoanInfo();
+      }
     }
   }
 
@@ -161,74 +151,146 @@ export class LoanApplication implements OnInit {
   }
 
   goToStep(step: number) {
-    this.currentStep = step;
+    if (step >= 1 && step <= this.totalSteps) {
+      this.currentStep = step;
+    }
   }
 
-  selectPackage(packageId: string) {
-    this.application.maGoiVay = packageId;
-    this.selectedPackage = this.loanPackages.find(
-      pkg => pkg.maGoiVay === packageId
-    ) || null;
+  canProceedToNextStep(): boolean {
+    switch (this.currentStep) {
+      case 1:
+        return !!(this.selectedPackage);
+      case 2:
+        return !!(this.application.name && this.application.email &&
+                 this.application.phone && this.application.address &&
+                 this.application.job && this.application.salary > 0);
+      case 3:
+        return !!(this.application.loanAmount > 0 && this.application.loanTerm > 0);
+      default:
+        return true;
+    }
+  }
+
+  calculateLoanInfo() {
+    if (!this.application.loanPackageId || !this.application.loanAmount || !this.application.loanTerm) {
+      return;
+    }
+
+    this.isCalculating = true;
+    const calculationData: LoanCalculationRequest = {
+      loanPackageId: this.application.loanPackageId,
+      loanAmount: this.application.loanAmount,
+      loanTerm: this.application.loanTerm
+    };
+
+    this.loanContractService.calculateLoanInfo(calculationData).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.loanCalculation = response.data;
+        }
+        this.isCalculating = false;
+      },
+      error: (error) => {
+        console.error('Error calculating loan info:', error);
+        this.error = 'Không thể tính toán thông tin vay';
+        this.isCalculating = false;
+      }
+    });
+  }
+
+  onLoanAmountChange() {
+    if (this.application.loanAmount && this.application.loanTerm) {
+      this.calculateLoanInfo();
+    }
+  }
+
+  onLoanTermChange() {
+    if (this.application.loanAmount && this.application.loanTerm) {
+      this.calculateLoanInfo();
+    }
+  }
+
+  submitApplication() {
+    if (!this.canSubmit()) {
+      return;
+    }
+
+    this.isSubmitting = true;
+    this.error = null;
+
+    const contractData: CreateLoanContractRequest = {
+      name: this.application.name,
+      email: this.application.email,
+      phone: this.application.phone,
+      address: this.application.address,
+      salary: this.application.salary,
+      maritalStatus: this.application.maritalStatus,
+      job: this.application.job,
+      birthDay: this.application.birthDay,
+      gender: this.application.gender,
+      loanPackageId: this.application.loanPackageId,
+      loanTerm: this.application.loanTerm,
+      loanAmount: this.application.loanAmount
+    };
+
+    this.loanContractService.createLoanContract(contractData).subscribe({
+      next: (response) => {
+        if (response.success) {
+          // Chuyển đến trang thành công
+          this.router.navigate(['/profile'], { 
+            queryParams: { tab: 'loan-contracts', message: 'Đơn vay đã được gửi thành công!' }
+          });
+        }
+        this.isSubmitting = false;
+      },
+      error: (error) => {
+        console.error('Error submitting application:', error);
+        this.error = error.error?.message || 'Có lỗi xảy ra khi gửi đơn vay';
+        this.isSubmitting = false;
+      }
+    });
+  }
+
+  canSubmit(): boolean {
+    return this.canProceedToNextStep() && 
+           !!this.loanCalculation && 
+           !this.isSubmitting;
   }
 
   formatCurrency(amount: number): string {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND'
-    }).format(amount);
+    return this.loanContractService.formatCurrency(amount);
   }
 
-  calculateMonthlyPayment(): number {
-    if (!this.selectedPackage || !this.application.soTienVay || !this.application.thoiHanVay) {
-      return 0;
-    }
-    
-    const monthlyRate = this.selectedPackage.laiSuat / 100;
-    const months = this.application.thoiHanVay;
-    const amount = this.application.soTienVay;
-    
-    const payment = (amount * monthlyRate * Math.pow(1 + monthlyRate, months)) / 
-                   (Math.pow(1 + monthlyRate, months) - 1);
-    return payment;
-  }
-
-  onSubmit(form: NgForm) {
-    if (form.valid) {
-      // Mock submission - trong thực tế sẽ gọi API
-      console.log('Loan Application Submitted:', this.application);
-      
-      // Simulate API call
-      setTimeout(() => {
-        alert('Đăng ký vay thành công! Chúng tôi sẽ liên hệ với bạn trong vòng 24h.');
-        this.router.navigate(['/']);
-      }, 1000);
-    } else {
-      alert('Vui lòng kiểm tra lại thông tin đăng ký!');
-    }
-  }
-
-  getStepTitle(step: number): string {
-    const titles = [
-      '',
-      'Chọn gói vay',
-      'Thông tin cá nhân', 
-      'Thông tin vay vốn',
-      'Xác nhận đăng ký'
-    ];
-    return titles[step] || '';
+  getProgressPercentage(): number {
+    return (this.currentStep / this.totalSteps) * 100;
   }
 
   isStepCompleted(step: number): boolean {
+    return this.currentStep > step;
+  }
+
+  isCurrentStep(step: number): boolean {
+    return this.currentStep === step;
+  }
+
+  // Validation methods
+  isValidEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+
+  isValidPhone(phone: string): boolean {
+    const phoneRegex = /^[0-9]{10,11}$/;
+    return phoneRegex.test(phone);
+  }
+
+  getStepTitle(step: number): string {
     switch (step) {
-      case 1:
-        return !!this.application.maGoiVay;
-      case 2:
-        return !!(this.application.hoTen && this.application.email && 
-                 this.application.soDienThoai && this.application.cmnd);
-      case 3:
-        return !!(this.application.soTienVay && this.application.mucDichVay);
-      default:
-        return false;
+      case 1: return 'Chọn gói vay';
+      case 2: return 'Thông tin cá nhân';
+      case 3: return 'Thông tin vay';
+      case 4: return 'Xác nhận';
+      default: return '';
     }
   }
 }
