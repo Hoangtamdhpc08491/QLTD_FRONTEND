@@ -115,19 +115,24 @@ import { NewsCategoryService } from '../../../../services/news-category.service'
                   <a [routerLink]="['/admin/news', news.id, 'edit']" 
                      class="btn btn-sm btn-outline-primary"
                      title="Chỉnh sửa">
-                    <i class="fas fa-edit"></i>
+                    <i class="fas fa-edit" aria-hidden="true"></i>
+                    <span class="sr-only">Sửa</span>
                   </a>
                   
                   <button (click)="toggleVisibility(news)" 
                           class="btn btn-sm btn-outline-warning"
-                          [title]="news.hide ? 'Hiển thị' : 'Ẩn'">
-                    <i class="fas" [class]="news.hide ? 'fa-eye' : 'fa-eye-slash'"></i>
+                          [title]="news.hide ? 'Hiển thị' : 'Ẩn'"
+                          type="button">
+                    <i class="fas" [class.fa-eye]="news.hide" [class.fa-eye-slash]="!news.hide" aria-hidden="true"></i>
+                    <span class="sr-only">{{news.hide ? 'Hiển thị' : 'Ẩn'}}</span>
                   </button>
                   
                   <button (click)="deleteNews(news)" 
                           class="btn btn-sm btn-outline-danger"
-                          title="Xóa">
-                    <i class="fas fa-trash"></i>
+                          title="Xóa"
+                          type="button">
+                    <i class="fas fa-trash" aria-hidden="true"></i>
+                    <span class="sr-only">Xóa</span>
                   </button>
                 </div>
               </td>
@@ -304,24 +309,31 @@ import { NewsCategoryService } from '../../../../services/news-category.service'
 
     .actions-col {
       width: 140px;
+      min-width: 140px;
     }
 
     .action-buttons {
       display: flex;
       gap: 4px;
+      align-items: center;
+      justify-content: flex-start;
     }
 
     .btn {
-      display: inline-flex;
+      display: inline-flex !important;
       align-items: center;
-      gap: 8px;
-      padding: 8px 16px;
-      border: none;
-      border-radius: 6px;
+      justify-content: center;
+      gap: 4px;
+      padding: 6px 8px;
+      border: 1px solid;
+      border-radius: 4px;
       font-weight: 500;
       text-decoration: none;
       cursor: pointer;
       transition: all 0.2s;
+      white-space: nowrap;
+      min-width: 32px;
+      height: 32px;
     }
 
     .btn-primary {
@@ -345,39 +357,41 @@ import { NewsCategoryService } from '../../../../services/news-category.service'
     .btn-sm {
       padding: 6px 8px;
       font-size: 12px;
+      min-width: 32px;
+      height: 32px;
     }
 
     .btn-outline-primary {
-      border: 1px solid #2563eb;
-      color: #2563eb;
-      background: white;
+      border: 1px solid #2563eb !important;
+      color: #2563eb !important;
+      background: white !important;
     }
 
     .btn-outline-primary:hover {
-      background-color: #2563eb;
-      color: white;
+      background-color: #2563eb !important;
+      color: white !important;
     }
 
     .btn-outline-warning {
-      border: 1px solid #d97706;
-      color: #d97706;
-      background: white;
+      border: 1px solid #d97706 !important;
+      color: #d97706 !important;
+      background: white !important;
     }
 
     .btn-outline-warning:hover {
-      background-color: #d97706;
-      color: white;
+      background-color: #d97706 !important;
+      color: white !important;
     }
 
     .btn-outline-danger {
-      border: 1px solid #dc2626;
-      color: #dc2626;
-      background: white;
+      border: 1px solid #dc2626 !important;
+      color: #dc2626 !important;
+      background: white !important;
     }
 
     .btn-outline-danger:hover {
-      background-color: #dc2626;
-      color: white;
+      background-color: #dc2626 !important;
+      color: white !important;
     }
 
     .form-input,
@@ -472,6 +486,18 @@ import { NewsCategoryService } from '../../../../services/news-category.service'
       font-size: 14px;
     }
 
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
     @media (max-width: 768px) {
       .filters-row {
         grid-template-columns: 1fr;
@@ -485,6 +511,16 @@ import { NewsCategoryService } from '../../../../services/news-category.service'
       
       .admin-table {
         font-size: 12px;
+      }
+
+      .action-buttons {
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .actions-col {
+        width: 100px;
+        min-width: 100px;
       }
       
       .pagination-wrapper {
