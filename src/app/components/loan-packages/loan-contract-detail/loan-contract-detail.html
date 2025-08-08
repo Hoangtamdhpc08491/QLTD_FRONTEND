@@ -107,9 +107,9 @@
               <span class="label">Lãi suất:</span>
               <span class="value">{{contract.interestRate}}%/năm</span>
             </div>
-            <div class="info-row" *ngIf="contract.emi">
+            <div class="info-row" *ngIf="contract.EMI">
               <span class="label">Trả hàng tháng:</span>
-              <span class="value highlight">{{formatCurrency(contract.emi)}}</span>
+              <span class="value highlight">{{formatCurrency(contract.EMI)}}</span>
             </div>
             <div class="info-row" *ngIf="contract.interestAmount">
               <span class="label">Tổng tiền lãi:</span>
