@@ -20,7 +20,7 @@ export interface LoanContract {
   interestRate: number;
   interestAmount: number;
   totalAmount: number;
-  emi: number;
+  EMI: number;
   status: 'pending' | 'approved' | 'rejected';
   note?: string;
   contractDate?: string;

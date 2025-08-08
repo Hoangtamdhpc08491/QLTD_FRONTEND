@@ -25,9 +25,9 @@
               (ngModelChange)="applyFilters()"
               class="filter-select">
         <option value="">Tất cả trạng thái</option>
-        <option value="Chờ duyệt">Chờ duyệt</option>
-        <option value="Đã duyệt">Đã duyệt</option>
-        <option value="Từ chối">Từ chối</option>
+        <option value="pending">Chờ duyệt</option>
+        <option value="approved">Đã duyệt</option>
+        <option value="rejected">Từ chối</option>
       </select>
 
       <input type="date" 
@@ -37,13 +37,19 @@
     </div>
   </div>
 
+  <!-- Loading state -->
+  <div class="loading-state" *ngIf="isLoading">
+    <div class="loading-spinner">⏳</div>
+    <p>Đang tải danh sách đơn vay...</p>
+  </div>
+
   <!-- Results Summary -->
-  <div class="results-summary">
-    <p>Hiển thị {{getPaginatedApplications().length}} trong tổng số {{filteredApplications.length}} đơn vay</p>
+  <div class="results-summary" *ngIf="!isLoading">
+    <p>Hiển thị {{getPaginatedApplications().length}} trong tổng số {{totalCount}} đơn vay</p>
   </div>
 
   <!-- Applications Table -->
-  <div class="applications-table-container">
+  <div class="applications-table-container" *ngIf="!isLoading">
     <table class="applications-table">
       <thead>
         <tr>
@@ -60,45 +66,54 @@
       <tbody>
         <tr *ngFor="let app of getPaginatedApplications()" class="application-row">
           <td class="app-id">
-            <strong>{{app.id}}</strong>
+            <strong>#{{app.id}}</strong>
           </td>
           
           <td class="customer-info">
             <div class="customer-details">
-              <div class="customer-name">{{app.hoTen}}</div>
+              <div class="customer-name">{{app.name}}</div>
               <div class="customer-contact">
                 <small>{{app.email}}</small><br>
-                <small>{{app.soDienThoai}}</small>
+                <small>{{app.phone}}</small>
+              </div>
+              <div class="customer-job">
+                <small>{{app.job}} - {{formatCurrency(app.salary)}}</small>
               </div>
             </div>
           </td>
 
           <td class="loan-package">
             <div class="package-info">
-              <div class="package-name">{{app.goiVay}}</div>
-              <small>Lãi suất: {{app.laiSuat}}%/tháng</small>
+              <div class="package-name">{{app.loanPackage?.name || 'N/A'}}</div>
+              <small>Lãi suất: {{app.interestRate}}%/năm</small>
             </div>
           </td>
 
           <td class="loan-amount">
-            <strong>{{formatCurrency(app.soTienVay)}}</strong>
+            <div class="amount-details">
+              <strong>{{formatCurrency(app.loanAmount)}}</strong>
+              <br><small>Tổng: {{formatCurrency(app.totalAmount)}}</small>
+            </div>
           </td>
 
           <td class="loan-term">
-            {{app.thoiHanVay}} tháng
+            {{app.loanTerm}} tháng
+            <br><small>EMI: {{formatCurrency(app.EMI)}}</small>
           </td>
 
           <td class="submit-date">
-            {{app.ngayNop | date:'dd/MM/yyyy'}}
+            {{formatDate(app.createdAt)}}
           </td>
 
           <td class="status-cell">
-            <span class="status-badge" [class]="getStatusClass(app.trangThai)">
-              {{app.trangThai}}
+            <span class="status-badge" [class]="getStatusClass(app.status)">
+              {{getStatusText(app.status)}}
             </span>
-            <div class="status-details" *ngIf="app.ngayDuyet">
-              <small>{{app.ngayDuyet | date:'dd/MM/yyyy'}}</small>
-              <small *ngIf="app.nguoiDuyet">bởi {{app.nguoiDuyet}}</small>
+            <div class="status-details" *ngIf="app.updatedAt && app.status !== 'pending'">
+              <small>{{formatDate(app.updatedAt)}}</small>
+            </div>
+            <div class="status-note" *ngIf="app.note">
+              <small>{{app.note}}</small>
             </div>
           </td>
 
@@ -108,7 +123,7 @@
                 👁️ Xem
               </button>
               
-              <ng-container *ngIf="app.trangThai === 'Chờ duyệt'">
+              <ng-container *ngIf="app.status === 'pending'">
                 <button class="btn btn-sm btn-success" (click)="approveApplication(app)">
                   ✅ Duyệt
                 </button>
@@ -123,7 +138,7 @@
     </table>
 
     <!-- Empty state -->
-    <div class="empty-state" *ngIf="getPaginatedApplications().length === 0">
+    <div class="empty-state" *ngIf="getPaginatedApplications().length === 0 && !isLoading">
       <div class="empty-icon">📋</div>
       <h3>Không tìm thấy đơn vay nào</h3>
       <p>Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm</p>
@@ -131,7 +146,7 @@
   </div>
 
   <!-- Pagination -->
-  <div class="pagination" *ngIf="totalPages > 1">
+  <div class="pagination" *ngIf="totalPages > 1 && !isLoading">
     <button class="pagination-btn" 
             [disabled]="currentPage === 1"
             (click)="goToPage(currentPage - 1)">
@@ -139,7 +154,7 @@
     </button>
 
     <span class="pagination-info">
-      Trang {{currentPage}} / {{totalPages}}
+      Trang {{currentPage}} / {{totalPages}} ({{totalCount}} đơn vay)
     </span>
 
     <button class="pagination-btn" 

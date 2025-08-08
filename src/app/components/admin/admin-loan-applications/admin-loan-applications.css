@@ -23,6 +23,29 @@
   gap: 1rem;
 }
 
+/* Loading state */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.loading-spinner {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 /* Filters */
 .filters-section {
   background: white;
@@ -253,6 +276,85 @@
 .btn-sm {
   padding: 0.5rem 1rem;
   font-size: 0.85rem;
+}
+
+/* Customer Info Styles */
+.customer-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.customer-name {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.customer-contact {
+  color: #6c757d;
+  font-size: 0.875rem;
+}
+
+.customer-job {
+  color: #495057;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+/* Loan Package Styles */
+.package-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.package-name {
+  font-weight: 600;
+  color: #495057;
+}
+
+/* Amount Styles */
+.amount-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.amount-details strong {
+  color: #28a745;
+  font-size: 1.1rem;
+}
+
+.amount-details small {
+  color: #6c757d;
+}
+
+/* Status Styles */
+.status-note {
+  margin-top: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background: #f8f9fa;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  color: #495057;
+  max-width: 200px;
+  word-wrap: break-word;
+}
+
+/* Enhanced Status Classes */
+.status-pending {
+  background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+  color: white;
+}
+
+.status-approved {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+}
+
+.status-rejected {
+  background: linear-gradient(135deg, #dc3545 0%, #e83e8c 100%);
+  color: white;
 }
 
 .btn-outline {
