@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, ActivatedRoute } from '@angular/router';
 import { Footer } from '../../shared/footer/footer';
 import { Header } from '../../shared/header/header';
 import { LoanPackageService, LoanPackage } from '../../../services/loan-package.service';
@@ -15,11 +15,17 @@ export class LoanPackagesList implements OnInit {
   loanPackages: LoanPackage[] = [];
   loading = true;
   error: string | null = null;
+  selectedCategoryId: number | null = null;
 
   private loanPackageService = inject(LoanPackageService);
+  private route = inject(ActivatedRoute);
 
   ngOnInit() {
-    this.loadLoanPackages();
+    // Lắng nghe query params để filter theo category
+    this.route.queryParams.subscribe(params => {
+      this.selectedCategoryId = params['category'] ? +params['category'] : null;
+      this.loadLoanPackages();
+    });
   }
 
   loadLoanPackages() {
@@ -27,8 +33,14 @@ export class LoanPackagesList implements OnInit {
     this.error = null;
     
     console.log('Loading loan packages from API...');
+    console.log('Selected Category ID:', this.selectedCategoryId);
     
-    this.loanPackageService.getAllLoanPackages().subscribe({
+    // Gọi API theo category hoặc tất cả
+    const apiCall = this.selectedCategoryId 
+      ? this.loanPackageService.getLoanPackagesByCategory(this.selectedCategoryId)
+      : this.loanPackageService.getAllLoanPackages();
+
+    apiCall.subscribe({
       next: (response) => {
         console.log('API Response:', response);
         if (response.success) {

@@ -5,7 +5,22 @@
       <h2 class="section-title">Khoản vay kinh doanh linh hoạt và nhanh chóng dành cho bạn</h2>
     </div>
     
-    <div class="loan-packages-grid">
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-state">
+      <div class="loading-spinner"></div>
+      <p>Đang tải danh sách gói vay...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error && !isLoading" class="error-state">
+      <div class="error-message">
+        <p>{{error}}</p>
+        <p>Hiển thị dữ liệu mẫu...</p>
+      </div>
+    </div>
+    
+    <!-- Loan Packages Grid -->
+    <div class="loan-packages-grid" *ngIf="!isLoading">
       <div class="loan-package-card" *ngFor="let package of loanPackages">
         <div class="package-icon">
           <span class="icon-emoji">{{package.icon}}</span>

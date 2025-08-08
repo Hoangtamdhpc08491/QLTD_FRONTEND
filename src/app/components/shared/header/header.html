@@ -24,9 +24,17 @@
             </a>
             <div class="dropdown-menu" [class.show]="showDropdown">
               <a class="dropdown-item" [routerLink]="'/goi-vay'">Tất cả gói vay</a>
-              <a class="dropdown-item" [routerLink]="'/goi-vay/chi-tiet/VKD001'">Vay kinh doanh</a>
-              <a class="dropdown-item" [routerLink]="'/goi-vay/chi-tiet/VCN002'">Vay cá nhân</a>
-              <a class="dropdown-item" [routerLink]="'/goi-vay/chi-tiet/VTC003'">Vay thế chấp</a>
+              <ng-container *ngFor="let category of categories">
+                <a class="dropdown-item" [routerLink]="'/goi-vay'" [queryParams]="{category: category.id}">
+                  {{category.name}}
+                </a>
+              </ng-container>
+              <!-- Fallback static items if no categories loaded -->
+              <ng-container *ngIf="categories.length === 0">
+                <a class="dropdown-item" [routerLink]="'/goi-vay/chi-tiet/VKD001'">Vay kinh doanh</a>
+                <a class="dropdown-item" [routerLink]="'/goi-vay/chi-tiet/VCN002'">Vay cá nhân</a>
+                <a class="dropdown-item" [routerLink]="'/goi-vay/chi-tiet/VTC003'">Vay thế chấp</a>
+              </ng-container>
             </div>
           </li>
           <li class="nav-item">
