@@ -237,7 +237,7 @@ export class LoanApplication implements OnInit {
       next: (response) => {
         if (response.success) {
           // Chuyển đến trang thành công
-          this.router.navigate(['/profile'], { 
+          this.router.navigate(['/hop-dong-vay'], { 
             queryParams: { tab: 'loan-contracts', message: 'Đơn vay đã được gửi thành công!' }
           });
         }
