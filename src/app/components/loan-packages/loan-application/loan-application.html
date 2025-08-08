@@ -58,7 +58,7 @@
               <div class="package-info">
                 <div class="info-row">
                   <span class="label">Lãi suất cơ bản:</span>
-                  <span class="value">{{selectedPackage.baseInterestRate}}%/tháng</span>
+                  <span class="value">{{selectedPackage.baseInterestRate}}%/năm</span>
                 </div>
                 <div class="info-row" *ngIf="selectedPackage.maxAmount">
                   <span class="label">Hạn mức tối đa:</span>
@@ -66,11 +66,11 @@
                 </div>
                 <div class="info-row" *ngIf="selectedPackage.interestRate2">
                   <span class="label">Lãi suất 12-24 tháng:</span>
-                  <span class="value">{{selectedPackage.interestRate2}}%/tháng</span>
+                  <span class="value">{{selectedPackage.interestRate2}}%/năm</span>
                 </div>
                 <div class="info-row" *ngIf="selectedPackage.interestRate3">
                   <span class="label">Lãi suất 24-36 tháng:</span>
-                  <span class="value">{{selectedPackage.interestRate3}}%/tháng</span>
+                  <span class="value">{{selectedPackage.interestRate3}}%/năm</span>
                 </div>
               </div>
               
@@ -326,7 +326,7 @@
                 <p><strong>Số tiền vay:</strong> {{formatCurrency(application.loanAmount)}}</p>
                 <p><strong>Thời hạn:</strong> {{application.loanTerm}} tháng</p>
                 <div *ngIf="loanCalculation">
-                  <p><strong>Lãi suất:</strong> {{loanCalculation.interestRate}}%/tháng</p>
+                  <p><strong>Lãi suất:</strong> {{loanCalculation.interestRate}}%/năm</p>
                   <p><strong>Trả hàng tháng:</strong> {{formatCurrency(loanCalculation.emi)}}</p>
                   <p><strong>Tổng tiền trả:</strong> {{formatCurrency(loanCalculation.totalAmount)}}</p>
                 </div>
